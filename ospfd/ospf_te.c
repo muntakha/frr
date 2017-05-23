@@ -422,6 +422,11 @@ set_linkparams_link_header (struct mpls_te_link *lp)
   if (ntohs (lp->use_bw.header.type) != 0)
     length += TLV_SIZE (&lp->use_bw.header);
 
+  /* TE_LINK_SUBTLV_SRLG */
+   if (ntohs (lp->srlg.header.type) != 0)
+     length += TLV_SIZE (&lp->srlg.header);
+
+
   lp->link_header.header.type   = htons (TE_TLV_LINK);
   lp->link_header.header.length = htons (length);
 
