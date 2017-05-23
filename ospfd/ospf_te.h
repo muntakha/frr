@@ -12,7 +12,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
- * 
+ *
  * GNU Zebra is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -252,6 +252,16 @@ struct te_link_subtlv_llri
 
 /* Inter-RA Export Upward sub-TLV (12) and Inter-RA Export Downward sub-TLV (13) (RFC6827bis) are not yet supported */
 /* SUBTLV 14-16 (RFC4203) are not yet supported */
+/* mes modifs*/
+/* RFC4203: Shared Risk link group*/
+#define TE_LINK_SUBTLV_SRLG		16
+struct te_link_subtlv_srlg
+{
+  struct te_tlv_header header;  /* Value length is 4 octets. */
+  u_int32_t value;              /*  Shared Risk Link Group Value  */
+};
+/* fin de mes modifs*/
+
 /* Bandwidth Constraints sub-TLV (17) (RFC4124) is not yet supported */
 /* SUBLV 18-20 are for OSPFv3 TE (RFC5329). see ospf6d */
 
@@ -435,6 +445,7 @@ struct mpls_te_link
   struct te_link_subtlv_rsc_clsclr rsc_clsclr;
   /* RFC4203 */
   struct te_link_subtlv_llri llri;
+  struct te_link_subtlv_srlg srlg;
   /* RFC5392 */
   struct te_link_subtlv_ras ras;
   struct te_link_subtlv_rip rip;

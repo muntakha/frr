@@ -17,7 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with GNU Zebra; see the file COPYING.  If not, write to the Free
  * Software Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA
- * 02111-1307, USA.  
+ * 02111-1307, USA.
  */
 
 #include <zebra.h>
@@ -111,7 +111,7 @@ if_zebra_new_hook (struct interface *ifp)
     rtadv->DefaultPreference = RTADV_PREF_MEDIUM;
 
     rtadv->AdvPrefixList = list_new ();
-  }    
+  }
 #endif /* HAVE_RTADV */
 
   /* Initialize installed address chains tree. */
@@ -128,7 +128,7 @@ static int
 if_zebra_delete_hook (struct interface *ifp)
 {
   struct zebra_if *zebra_if;
-  
+
   if (ifp->info)
     {
       zebra_if = ifp->info;
@@ -266,7 +266,7 @@ if_subnet_add (struct interface *ifp, struct connected *ifc)
 
   /* Tie address at the tail of address list. */
   listnode_add (addr_list, ifc);
-  
+
   /* Return list element count. */
   return (addr_list->count);
 }
@@ -291,7 +291,7 @@ if_subnet_delete (struct interface *ifp, struct connected *ifc)
       return -1;
     }
   route_unlock_node (rn);
-  
+
   /* Untie address from subnet's address list. */
   addr_list = rn->info;
 
@@ -322,10 +322,10 @@ if_subnet_delete (struct interface *ifp, struct connected *ifc)
 	   * non-trivial. */
 	  zebra_interface_address_add_update (ifp, ifc);
 	}
-      
+
       return addr_list->count;
     }
-  
+
   /* Otherwise, free list and route node. */
   list_free (addr_list);
   rn->info = NULL;
@@ -340,10 +340,10 @@ if_subnet_delete (struct interface *ifp, struct connected *ifc)
  * ******************** Solaris flags hacks **************************
  *
  * Solaris IFF_UP flag reflects only the primary interface as the
- * routing socket only sends IFINFO for the primary interface.  Hence  
- * ~IFF_UP does not per se imply all the logical interfaces are also   
+ * routing socket only sends IFINFO for the primary interface.  Hence
+ * ~IFF_UP does not per se imply all the logical interfaces are also
  * down - which we only know of as addresses. Instead we must determine
- * whether the interface really is up or not according to how many   
+ * whether the interface really is up or not according to how many
  * addresses are still attached. (Solaris always sends RTM_DELADDR if
  * an interface, logical or not, goes ~IFF_UP).
  *
@@ -363,9 +363,9 @@ if_flags_mangle (struct interface *ifp, uint64_t *newflags)
 {
 #ifdef SUNOS_5
   struct zebra_if *zif = ifp->info;
-  
+
   zif->primary_state = *newflags & (IFF_UP & 0xff);
-  
+
   if (CHECK_FLAG (zif->primary_state, IFF_UP)
       || listcount(ifp->connected) > 0)
     SET_FLAG (*newflags, IFF_UP);
@@ -384,7 +384,7 @@ void
 if_flags_update (struct interface *ifp, uint64_t newflags)
 {
   if_flags_mangle (ifp, &newflags);
-    
+
   if (if_is_no_ptm_operative (ifp))
     {
       /* operative -> inoperative? */
@@ -414,7 +414,7 @@ if_addr_wakeup (struct interface *ifp)
   for (ALL_LIST_ELEMENTS (ifp->connected, node, nnode, ifc))
     {
       p = ifc->address;
-	
+
       if (CHECK_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED)
 	  && ! CHECK_FLAG (ifc->conf, ZEBRA_IFC_QUEUED))
 	{
@@ -447,7 +447,7 @@ if_addr_wakeup (struct interface *ifp)
 	      ret = if_set_prefix (ifp, ifc);
 	      if (ret < 0)
 		{
-		  zlog_warn ("Can't set interface's address: %s", 
+		  zlog_warn ("Can't set interface's address: %s",
 			     safe_strerror(errno));
 		  continue;
 		}
@@ -469,7 +469,7 @@ if_addr_wakeup (struct interface *ifp)
 	      ret = if_prefix_add_ipv6 (ifp, ifc);
 	      if (ret < 0)
 		{
-		  zlog_warn ("Can't set interface's address: %s", 
+		  zlog_warn ("Can't set interface's address: %s",
 			     safe_strerror(errno));
 		  continue;
 		}
@@ -599,7 +599,7 @@ if_delete_connected (struct interface *ifp)
 	{
 	  ifc = listgetdata (node);
 	  p = ifc->address;
-	  
+
 	  if (p->family == AF_INET
 	      && (rn = route_node_lookup (zebra_if->ipv4_subnets, p)))
 	    {
@@ -607,10 +607,10 @@ if_delete_connected (struct interface *ifp)
 	      struct listnode *next;
 	      struct listnode *first;
 	      struct list *addr_list;
-	      
+
 	      route_unlock_node (rn);
 	      addr_list = (struct list *) rn->info;
-	      
+
 	      /* Remove addresses, secondaries first. */
 	      first = listhead (addr_list);
 	      for (anode = first->next; anode || first; anode = next)
@@ -636,7 +636,7 @@ if_delete_connected (struct interface *ifp)
 		  /* Remove from subnet chain. */
 		  list_delete_node (addr_list, anode);
 		  route_unlock_node (rn);
-		  
+
 		  /* Remove from interface address list (unconditionally). */
 		  if (!CHECK_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED))
 		    {
@@ -1036,7 +1036,7 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
   vty_out (vty, "Interface %s is ", ifp->name);
   if (if_is_up(ifp)) {
     vty_out (vty, "up, line protocol ");
-    
+
     if (CHECK_FLAG(ifp->status, ZEBRA_INTERFACE_LINKDETECTION)) {
       if (if_is_running(ifp))
        vty_out (vty, "is up%s", VTY_NEWLINE);
@@ -1069,8 +1069,8 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
     }
   else if (! CHECK_FLAG (ifp->status, ZEBRA_INTERFACE_ACTIVE))
     {
-      vty_out(vty, "  index %d inactive interface%s", 
-	      ifp->ifindex, 
+      vty_out(vty, "  index %d inactive interface%s",
+	      ifp->ifindex,
 	      VTY_NEWLINE);
       return;
     }
@@ -1081,7 +1081,7 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
     vty_out (vty, "mtu6 %d ", ifp->mtu6);
   vty_out (vty, "%s  flags: %s%s", VTY_NEWLINE,
            if_flag_dump (ifp->flags), VTY_NEWLINE);
-  
+
   /* Hardware address. */
   vty_out (vty, "  Type: %s%s", if_link_type_str (ifp->ll_type), VTY_NEWLINE);
   if (ifp->hw_addr_len != 0)
@@ -1093,7 +1093,7 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
 	vty_out (vty, "%s%02x", i == 0 ? "" : ":", ifp->hw_addr[i]);
       vty_out (vty, "%s", VTY_NEWLINE);
     }
-  
+
   /* Bandwidth in Mbps */
   if (ifp->bandwidth != 0)
     {
@@ -1159,6 +1159,9 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
         vty_out(vty, "    Utilized Bandwidth %g (Byte/s)%s", iflp->use_bw, VTY_NEWLINE);
       if (IS_PARAM_SET(iflp, LP_RMT_AS))
         vty_out(vty, "    Neighbor ASBR IP: %s AS: %u %s", inet_ntoa(iflp->rmt_ip), iflp->rmt_as, VTY_NEWLINE);
+      /* mes modifs*/
+      if (IS_PARAM_SET(iflp, LP_SRLG))
+             vty_out(vty, "    shared risk link group %u%s",iflp->srlg, VTY_NEWLINE);
     }
 
  #ifdef RTADV
@@ -1402,7 +1405,7 @@ if_show_description (struct vty *vty, vrf_id_t vrf_id)
 
       len = vty_out (vty, "%s", ifp->name);
       vty_out (vty, "%*s", (16 - len), " ");
-      
+
       if (if_is_up(ifp))
 	{
 	  vty_out (vty, "up      ");
@@ -1527,7 +1530,7 @@ DEFUN (linkdetect,
 {
   VTY_DECLVAR_CONTEXT (interface, ifp);
   int if_was_operative;
-  
+
   if_was_operative = if_is_no_ptm_operative(ifp);
   SET_FLAG(ifp->status, ZEBRA_INTERFACE_LINKDETECTION);
 
@@ -1552,7 +1555,7 @@ DEFUN (no_linkdetect,
 
   if_was_operative = if_is_no_ptm_operative(ifp);
   UNSET_FLAG(ifp->status, ZEBRA_INTERFACE_LINKDETECTION);
-  
+
   /* Interface may come up after disabling link detection */
   if (if_is_operative(ifp) && !if_was_operative) if_up(ifp);
 
@@ -1627,7 +1630,7 @@ DEFUN (bandwidth_if,
   int idx_number = 1;
   VTY_DECLVAR_CONTEXT (interface, ifp);
   unsigned int bandwidth;
-  
+
   bandwidth = strtol(argv[idx_number]->arg, NULL, 10);
 
   /* bandwidth range is <1-100000> */
@@ -1636,13 +1639,13 @@ DEFUN (bandwidth_if,
       vty_out (vty, "Bandwidth is invalid%s", VTY_NEWLINE);
       return CMD_WARNING;
     }
-  
+
   ifp->bandwidth = bandwidth;
 
   /* force protocols to recalculate routes due to cost change */
   if (if_is_operative (ifp))
     zebra_interface_up_update (ifp);
-  
+
   return CMD_SUCCESS;
 }
 
@@ -1656,7 +1659,7 @@ DEFUN (no_bandwidth_if,
   VTY_DECLVAR_CONTEXT (interface, ifp);
 
   ifp->bandwidth = 0;
-  
+
   /* force protocols to recalculate routes due to cost change */
   if (if_is_operative (ifp))
     zebra_interface_up_update (ifp);
@@ -2364,6 +2367,43 @@ DEFUN (no_link_params_use_bw,
   return CMD_SUCCESS;
 }
 
+/*mes modifs*/
+/* srlg */
+DEFUN (link_params_srlg,
+       link_params_srlg_cmd,
+       "srlg (0-4294967295)",
+       "Shared risk link group\n"
+       "Srlg value in decimal\n")
+{
+  int idx_number = 1;
+  VTY_DECLVAR_CONTEXT (interface, ifp);
+  struct if_link_params *iflp = if_link_params_get (ifp);
+  u_int32_t srlg;
+
+  VTY_GET_ULONG("SRLG", srlg, argv[idx_number]->arg);
+
+  /* Update srlg */
+  link_param_cmd_set_uint32 (ifp, &iflp->srlg, LP_SRLG, srlg);
+
+  return CMD_SUCCESS;
+}
+
+DEFUN (no_link_params_srlg,
+       no_link_params_srlg_cmd,
+       "no srlg",
+       NO_STR
+       "Disable srlg on this interface\n")
+{
+  VTY_DECLVAR_CONTEXT (interface, ifp);
+
+  /* Unset TE srlg */
+  link_param_cmd_unset(ifp, LP_TE_METRIC);
+
+  return CMD_SUCCESS;
+}
+/*mes modifs*/
+
+
 static int
 ip_address_install (struct vty *vty, struct interface *ifp,
 		    const char *addr_str, const char *peer_str,
@@ -2437,7 +2477,7 @@ ip_address_install (struct vty *vty, struct interface *ifp,
       ret = if_set_prefix (ifp, ifc);
       if (ret < 0)
 	{
-	  vty_out (vty, "%% Can't set interface IP address: %s.%s", 
+	  vty_out (vty, "%% Can't set interface IP address: %s.%s",
 		   safe_strerror(errno), VTY_NEWLINE);
 	  return CMD_WARNING;
 	}
@@ -2481,7 +2521,7 @@ ip_address_uninstall (struct vty *vty, struct interface *ifp,
     return CMD_WARNING;
 
   UNSET_FLAG (ifc->conf, ZEBRA_IFC_CONFIGURED);
-  
+
   /* This is not real address or interface is not active. */
   if (! CHECK_FLAG (ifc->conf, ZEBRA_IFC_QUEUED)
       || ! CHECK_FLAG (ifp->status, ZEBRA_INTERFACE_ACTIVE))
@@ -2495,7 +2535,7 @@ ip_address_uninstall (struct vty *vty, struct interface *ifp,
   ret = if_unset_prefix (ifp, ifc);
   if (ret < 0)
     {
-      vty_out (vty, "%% Can't unset interface IP address: %s.%s", 
+      vty_out (vty, "%% Can't unset interface IP address: %s.%s",
 	       safe_strerror(errno), VTY_NEWLINE);
       return CMD_WARNING;
     }
@@ -2633,7 +2673,7 @@ ipv6_address_install (struct vty *vty, struct interface *ifp,
 
       if (ret < 0)
 	{
-	  vty_out (vty, "%% Can't set interface IP address: %s.%s", 
+	  vty_out (vty, "%% Can't set interface IP address: %s.%s",
 		   safe_strerror(errno), VTY_NEWLINE);
 	  return CMD_WARNING;
 	}
@@ -2704,7 +2744,7 @@ ipv6_address_uninstall (struct vty *vty, struct interface *ifp,
   ret = if_prefix_delete_ipv6 (ifp, ifc);
   if (ret < 0)
     {
-      vty_out (vty, "%% Can't unset interface IP address: %s.%s", 
+      vty_out (vty, "%% Can't unset interface IP address: %s.%s",
 	       safe_strerror(errno), VTY_NEWLINE);
       return CMD_WARNING;
     }
@@ -2836,7 +2876,7 @@ if_config_write (struct vty *vty)
       /* Assign bandwidth here to avoid unnecessary interface flap
 	 while processing config script */
       if (ifp->bandwidth != 0)
-	vty_out(vty, " bandwidth %u%s", ifp->bandwidth, VTY_NEWLINE); 
+	vty_out(vty, " bandwidth %u%s", ifp->bandwidth, VTY_NEWLINE);
 
       if (!CHECK_FLAG(ifp->status, ZEBRA_INTERFACE_LINKDETECTION))
         vty_out(vty, " no link-detect%s", VTY_NEWLINE);
@@ -2888,7 +2928,7 @@ zebra_if_init (void)
   /* Initialize interface and new hook. */
   if_add_hook (IF_NEW_HOOK, if_zebra_new_hook);
   if_add_hook (IF_DELETE_HOOK, if_zebra_delete_hook);
-  
+
   /* Install configuration write function. */
   install_node (&interface_node, if_config_write);
   install_node (&link_params_node, NULL);
@@ -2943,4 +2983,6 @@ zebra_if_init (void)
   install_element(LINK_PARAMS_NODE, &link_params_use_bw_cmd);
   install_element(LINK_PARAMS_NODE, &no_link_params_use_bw_cmd);
   install_element(LINK_PARAMS_NODE, &exit_link_params_cmd);
+  install_element(LINK_PARAMS_NODE, &link_params_srlg_cmd);
+  install_element(LINK_PARAMS_NODE, &no_link_params_srlg_cmd);
 }

@@ -165,6 +165,7 @@ struct if_stats
 #define LP_RES_BW               0x0400
 #define LP_AVA_BW               0x0800
 #define LP_USE_BW               0x1000
+#define LP_SRLG			0x2000
 
 #define IS_PARAM_UNSET(lp, st) !(lp->lp_status & st)
 #define IS_PARAM_SET(lp, st) (lp->lp_status & st)
@@ -193,13 +194,14 @@ struct if_link_params {
   float res_bw;          /* Residual Bandwidth */
   float ava_bw;          /* Available Bandwidth */
   float use_bw;          /* Utilized Bandwidth */
+  u_int32_t srlg;        /* Shared risk link group*/
 };
 
 #define INTERFACE_LINK_PARAMS_SIZE   sizeof(struct if_link_params)
 #define HAS_LINK_PARAMS(ifp)  ((ifp)->link_params != NULL)
 
 /* Interface structure */
-struct interface 
+struct interface
 {
   /* Interface name.  This should probably never be changed after the
      interface is created, because the configuration info for this interface
@@ -243,12 +245,12 @@ struct interface
 
   /* interface bandwidth, kbits */
   unsigned int bandwidth;
-  
+
   /* Link parameters for Traffic Engineering */
   struct if_link_params *link_params;
 
   /* description of the interface. */
-  char *desc;			
+  char *desc;
 
   /* Distribute list. */
   void *distribute_in;
@@ -269,7 +271,7 @@ struct interface
   /* Statistics fileds. */
 #ifdef HAVE_PROC_NET_DEV
   struct if_stats stats;
-#endif /* HAVE_PROC_NET_DEV */  
+#endif /* HAVE_PROC_NET_DEV */
 #ifdef HAVE_NET_RT_IFLIST
   struct if_data stats;
 #endif /* HAVE_NET_RT_IFLIST */
@@ -310,7 +312,7 @@ struct connected
 #define ZEBRA_IFA_UNNUMBERED   (1 << 2)
   /* N.B. the ZEBRA_IFA_PEER flag should be set if and only if
      a peer address has been configured.  If this flag is set,
-     the destination field must contain the peer address.  
+     the destination field must contain the peer address.
      Otherwise, if this flag is not set, the destination address
      will either contain a broadcast address or be NULL.
    */
@@ -423,7 +425,7 @@ extern struct interface *if_get_by_name_len(const char *ifname,
 
 
 /* Delete the interface, but do not free the structure, and leave it in the
-   interface list.  It is often advisable to leave the pseudo interface 
+   interface list.  It is often advisable to leave the pseudo interface
    structure because there may be configuration information attached. */
 extern void if_delete_retain (struct interface *);
 
@@ -464,7 +466,7 @@ extern void connected_add (struct interface *, struct connected *);
 extern struct connected  *connected_add_by_prefix (struct interface *,
                                             struct prefix *,
                                             struct prefix *);
-extern struct connected  *connected_delete_by_prefix (struct interface *, 
+extern struct connected  *connected_delete_by_prefix (struct interface *,
                                                struct prefix *);
 extern struct connected  *connected_lookup_prefix (struct interface *,
                                                    struct prefix *);

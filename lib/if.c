@@ -1,10 +1,10 @@
 
-/* 
+/*
  * Interface functions.
  * Copyright (C) 1997, 98 Kunihiro Ishiguro
  *
  * This file is part of GNU Zebra.
- * 
+ *
  * GNU Zebra is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published
  * by the Free Software Foundation; either version 2, or (at your
@@ -61,7 +61,7 @@ struct if_master
  * lexicographic by name, and then numeric by number.  No number sorts
  * before all numbers.  Examples: de0 < de1, de100 < fxp0 < xl0, devpty <
  * devpty0, de0 < del0
- */         
+ */
 int
 if_cmp_name_func (char *p1, char *p2)
 {
@@ -91,9 +91,9 @@ if_cmp_name_func (char *p1, char *p2)
     p1 += l1;
     p2 += l1;
 
-    if (!*p1) 
+    if (!*p1)
       return -1;
-    if (!*p2) 
+    if (!*p2)
       return 1;
 
     x1 = strtol(p1, &p1, 10);
@@ -130,7 +130,7 @@ if_create (const char *name, int namelen, vrf_id_t vrf_id)
 
   ifp = XCALLOC (MTYPE_IF, sizeof (struct interface));
   ifp->ifindex = IFINDEX_INTERNAL;
-  
+
   assert (name);
   assert (namelen <= INTERFACE_NAMSIZ);	/* Need space for '\0' at end. */
   strncpy (ifp->name, name, namelen);
@@ -270,7 +270,7 @@ if_lookup_by_name (const char *name, vrf_id_t vrf_id)
 {
   struct listnode *node;
   struct interface *ifp;
-  
+
   if (name)
     for (ALL_LIST_ELEMENTS_RO (vrf_iflist (vrf_id), node, ifp))
       {
@@ -434,16 +434,16 @@ if_get_by_name_len (const char *name, size_t namelen, vrf_id_t vrf_id, int vty)
   if (ifp)
     return ifp;
 
-  /* Didn't find the interface on that vrf. Defined on a different one? */ 
+  /* Didn't find the interface on that vrf. Defined on a different one? */
   RB_FOREACH (vrf, vrf_id_head, &vrfs_by_id)
     {
       for (ALL_LIST_ELEMENTS_RO (vrf_iflist (vrf->vrf_id), node, ifp))
 	{
 	  if (!memcmp(name, ifp->name, namelen) && (ifp->name[namelen] == '\0'))
 	    {
-	      /* Found a match.  If the interface command was entered in vty without a 
+	      /* Found a match.  If the interface command was entered in vty without a
 	       * VRF (passed as VRF_DEFAULT), accept the ifp we found.   If a vrf was
-	       * entered and there is a mismatch, reject it if from vty. If it came 
+	       * entered and there is a mismatch, reject it if from vty. If it came
 	       * from the kernel by way of zclient,  believe it and update
 	       * the ifp accordingly.
 	       */
@@ -665,11 +665,11 @@ if_sunwzebra_get (const char *name, size_t nlen, vrf_id_t vrf_id)
 
   if ( (ifp = if_lookup_by_name_len (name, nlen, vrf_id)) != NULL)
     return ifp;
-  
+
   /* hunt the primary interface name... */
   while (seppos < nlen && name[seppos] != ':')
     seppos++;
-  
+
   /* Wont catch seperator as last char, e.g. 'foo0:' but thats invalid */
   if (seppos < nlen)
     return if_get_by_name_len (name, seppos, vrf_id, 1);
@@ -749,7 +749,7 @@ DEFUN_NOSH (no_interface,
       return CMD_WARNING;
     }
 
-  if (CHECK_FLAG (ifp->status, ZEBRA_INTERFACE_ACTIVE)) 
+  if (CHECK_FLAG (ifp->status, ZEBRA_INTERFACE_ACTIVE))
     {
       vty_out (vty, "%% Only inactive interfaces can be deleted%s",
 	      VTY_NEWLINE);
@@ -906,7 +906,7 @@ connected_log (struct connected *connected, char *str)
   struct interface *ifp;
   char logbuf[BUFSIZ];
   char buf[BUFSIZ];
-  
+
   ifp = connected->ifp;
   p = connected->address;
 
@@ -1022,7 +1022,7 @@ connected_lookup_prefix (struct interface *ifp, struct prefix *addr)
 }
 
 struct connected *
-connected_add_by_prefix (struct interface *ifp, struct prefix *p, 
+connected_add_by_prefix (struct interface *ifp, struct prefix *p,
                          struct prefix *destination)
 {
   struct connected *ifc;
@@ -1116,7 +1116,7 @@ ifaddr_ipv4_lookup (struct in_addr *addr, ifindex_t ifindex)
       rn = route_node_lookup (ifaddr_ipv4_table, (struct prefix *) &p);
       if (! rn)
 	return NULL;
-      
+
       ifp = rn->info;
       route_unlock_node (rn);
       return ifp;

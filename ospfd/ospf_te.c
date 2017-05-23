@@ -12,7 +12,7 @@
  * under the terms of the GNU General Public License as published by the
  * Free Software Foundation; either version 2, or (at your option) any
  * later version.
- * 
+ *
  * GNU Zebra is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
@@ -62,7 +62,7 @@
 #include "ospfd/ospf_zebra.h"
 #include "ospfd/ospf_te.h"
 #include "ospfd/ospf_vty.h"
-
+#include "lib/stdint.h"
 /*
  * Global variable to manage Opaque-LSA/MPLS-TE on this node.
  * Note that all parameter values are stored in network byte order.
@@ -297,7 +297,7 @@ ospf_mpls_te_foreach_area (void (*func)
                            (struct mpls_te_link * lp, opcode_t sched_opcode),
                            opcode_t sched_opcode)
 {
-  struct listnode *node, *nnode; 
+  struct listnode *node, *nnode;
   struct listnode *node2;
   struct mpls_te_link *lp;
   struct ospf_area *area;
@@ -703,6 +703,17 @@ set_linkparams_use_bw (struct mpls_te_link *lp, float fp)
   return;
 }
 
+/* mes modifs*/
+static void
+set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
+{
+  lp->srlg.header.type   = htons (TE_LINK_SUBTLV_SRLG);
+  lp->srlg.header.length = htons (TE_LINK_SUBTLV_DEF_SIZE);
+  lp->srlg.value = htonl (srlg);
+  return;
+}
+/*mes modifs*/
+
 /* Update TE parameters from Interface */
 static void
 update_linkparams(struct mpls_te_link *lp)
@@ -786,7 +797,12 @@ update_linkparams(struct mpls_te_link *lp)
     set_linkparams_use_bw(lp, ifp->link_params->use_bw);
   else
     TLV_TYPE(lp->use_bw) = 0;
-
+  /*mes modifs*/
+  if (IS_PARAM_SET(ifp->link_params, LP_SRLG))
+      set_linkparams_srlg(lp, ifp->link_params->srlg);
+    else
+      TLV_TYPE(lp->srlg) = 0;
+  /*mes modifs*/
   /* RFC5392 */
   if (IS_PARAM_SET(ifp->link_params, LP_RMT_AS))
     {
@@ -2111,7 +2127,23 @@ show_vty_unknown_tlv (struct vty *vty, struct te_tlv_header *tlvh)
 
   return TLV_SIZE (tlvh);
 }
+/*mes modifs*/
+static u_int16_t
+show_vty_link_subtlv_srlg (struct vty *vty, struct te_tlv_header *tlvh)
+{
+  struct te_link_subtlv_srlg *top;
 
+  top = (struct te_link_subtlv_srlg *) tlvh;
+  if (vty != NULL)
+    vty_out (vty, "  Shared risk link group: %u%s",
+             (u_int32_t) ntohl (top->value), VTY_NEWLINE);
+  else
+    zlog_debug ("    Shared risk link group: %u",
+                (u_int32_t) ntohl (top->value));
+
+  return TLV_SIZE (tlvh);
+}
+/*mes modifs*/
 static u_int16_t
 ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
                                u_int16_t subtotal, u_int16_t total)
@@ -2362,7 +2394,7 @@ DEFUN (ospf_mpls_te_router_addr,
               break;
             }
         }
-      
+
       for (ALL_LIST_ELEMENTS (OspfMplsTE.iflist, node, nnode, lp))
         {
           if ((lp->area == NULL) || IS_FLOOD_AS (lp->type))
@@ -2597,6 +2629,11 @@ show_mpls_te_link_sub (struct vty *vty, struct interface *ifp)
       if (TLV_TYPE(lp->use_bw) != 0)
         show_vty_link_subtlv_use_bw (vty, &lp->use_bw.header);
       vty_out (vty, "---------------%s%s", VTY_NEWLINE, VTY_NEWLINE);
+      /* mes modifs*/
+      if (TLV_TYPE(lp->srlg) != 0)
+             show_vty_link_subtlv_srlg(vty, &lp->srlg.header);
+           vty_out (vty, "---------------%s%s", VTY_NEWLINE, VTY_NEWLINE);
+      /* mes modifs*/
     }
   else
     {
