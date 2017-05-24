@@ -390,6 +390,7 @@ struct te_link_subtlv
     float res_bw;
     float ava_bw;
     float use_bw;
+    u_int32_t srlg;
   } value;
 };
 

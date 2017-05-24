@@ -1203,6 +1203,8 @@ build_link_tlv (struct stream *s, struct mpls_te_link *lp)
   build_link_subtlv (s, &lp->res_bw.header);
   build_link_subtlv (s, &lp->ava_bw.header);
   build_link_subtlv (s, &lp->use_bw.header);
+  build_link_subtlv (s, &lp->srlg.header);
+
 
   return;
 }
@@ -2221,6 +2223,9 @@ ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
         case TE_LINK_SUBTLV_USE_BW:
           sum += show_vty_link_subtlv_use_bw (vty, tlvh);
           break;
+        case TE_LINK_SUBTLV_SRLG:
+                  sum += show_vty_link_subtlv_te_srlg (vty, tlvh);
+                  break;
         default:
           sum += show_vty_unknown_tlv (vty, tlvh);
           break;
