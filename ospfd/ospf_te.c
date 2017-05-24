@@ -2224,7 +2224,7 @@ ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
           sum += show_vty_link_subtlv_use_bw (vty, tlvh);
           break;
         case TE_LINK_SUBTLV_SRLG:
-                  sum += show_vty_link_subtlv_te_srlg (vty, tlvh);
+                  sum += show_vty_link_subtlv_srlg (vty, tlvh);
                   break;
         default:
           sum += show_vty_unknown_tlv (vty, tlvh);
