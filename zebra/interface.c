@@ -2410,20 +2410,27 @@ DEFUN (no_link_params_srlg,
 
 DEFUN (link_params_iscd,
        link_params_iscd_cmd,
-       "switching swcap (0-256) encoding (1-11) max_lsp (0-7) BANDWIDTH",
+       "switching swcap (0-256) encoding (1-11) priority (0-7) max_lsp BANDWIDTH",
        "Interface Switching Capability Descriptor\n"
 	   "Switching Capability\n"
+	   "value of switching capability\n"
 	   "Encoding Type\n"
-       "Maximum LSP Bandwidth at each priority level\n")
+	   "value of switching capability\n"
+	   "priority max LSP\n"
+	   "max LSP priority value\n"
+       "Maximum LSP Bandwidth at each priority level\n"
+	   "Bytes/second (IEEE floating point format)\n")
 {
   int idx_number = 6;
-  int idx_bandwidth=7;
-  VTY_DECLVAR_CONTEXT (interface, ifp);
-  struct if_link_params *iflp = if_link_params_get (ifp);
+  int idx_bandwidth=8;
   u_int8_t swcap;
   u_int8_t encodType;
   int  priority;
   float bw;
+
+      VTY_DECLVAR_CONTEXT (interface, ifp);
+      struct if_link_params *iflp = if_link_params_get (ifp);
+
 
       VTY_GET_ULONG("swcap", swcap, argv[2]->arg);
       VTY_GET_ULONG("encodType", encodType, argv[4]->arg);
@@ -2454,13 +2461,10 @@ DEFUN (link_params_iscd,
       }
 
     /* Update sawap encodType */
-      link_param_cmd_set_uint32 (ifp, &iflp->Swcap, LP_ISCD, swcap);
-      link_param_cmd_set_uint32 (ifp, &iflp->encod_type, LP_ISCD, encodType);
+      link_param_cmd_set_uint32 (ifp, (uint32_t)&iflp->Swcap, LP_ISCD, (uint32_t)swcap);
+      link_param_cmd_set_uint32 (ifp, (uint32_t)&iflp->encod_type, LP_ISCD, (uint32_t)encodType);
     /* Update Max LSP Bandwidth if needed */
       link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
-      /* force protocols to update LINK STATE due to parameters change */
-        if (if_is_operative (ifp))
-          zebra_interface_parameters_update (ifp);
 
 
   return CMD_SUCCESS;
