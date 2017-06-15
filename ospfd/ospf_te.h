@@ -104,7 +104,11 @@ struct te_tlv_header
   u_int16_t	type;			/* TE_TLV_XXX (see below) */
   u_int16_t	length;			/* Value portion only, in octets */
 };
+/*for specific information of switching capability*/
+ struct Sc_specific_information
+ {
 
+ };
 #define TLV_HDR_SIZE \
 	(sizeof (struct te_tlv_header))
 
@@ -251,8 +255,20 @@ struct te_link_subtlv_llri
 };
 
 /* Inter-RA Export Upward sub-TLV (12) and Inter-RA Export Downward sub-TLV (13) (RFC6827bis) are not yet supported */
-/* SUBTLV 14-16 (RFC4203) are not yet supported */
+/* SUBTLV 14 (RFC4203) is not yet supported */
 /* mes modifs*/
+/* RFC4203: Interface Switching Capability Descriptor*/
+#define TE_LINK_SUBTLV_ISCD		15
+struct te_link_subtlv_iscd
+{
+  struct te_tlv_header header;          /*Value length is 4 octets. */
+  u_int8_t Swcap;                       /*Switching Capability  */
+  u_int8_t encod_type;                  /*The Encoding field*/
+  u_int16_t padding;		            /*Reserved*/
+  float maw_lsp_bw [MAX_CLASS_TYPE];    /*Maximum LSP Bandwidth is encoded as a list of eight 4 octet fields*/
+  struct Sc_specific_information sc_si;  /*Switching Capability specific information*/
+};
+
 /* RFC4203: Shared Risk link group*/
 #define TE_LINK_SUBTLV_SRLG		16
 struct te_link_subtlv_srlg
@@ -391,6 +407,11 @@ struct te_link_subtlv
     float ava_bw;
     float use_bw;
     u_int32_t srlg;
+    u_int8_t Swcap;
+    u_int8_t encod_type;
+    u_int16_t padding;
+    float max_lsp_bw [8];
+    struct Sc_specific_information sc_si;
   } value;
 };
 
@@ -447,6 +468,7 @@ struct mpls_te_link
   /* RFC4203 */
   struct te_link_subtlv_llri llri;
   struct te_link_subtlv_srlg srlg;
+  struct te_link_subtlv_iscd iscd;
   /* RFC5392 */
   struct te_link_subtlv_ras ras;
   struct te_link_subtlv_rip rip;

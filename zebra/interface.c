@@ -2384,6 +2384,9 @@ DEFUN (link_params_srlg,
 
   /* Update srlg */
   link_param_cmd_set_uint32 (ifp, &iflp->srlg, LP_SRLG, srlg);
+  /* force protocols to update LINK STATE due to parameters change */
+    if (if_is_operative (ifp))
+      zebra_interface_parameters_update (ifp);
 
   return CMD_SUCCESS;
 }
@@ -2397,10 +2400,87 @@ DEFUN (no_link_params_srlg,
   VTY_DECLVAR_CONTEXT (interface, ifp);
 
   /* Unset TE srlg */
-  link_param_cmd_unset(ifp, LP_TE_METRIC);
+  link_param_cmd_unset(ifp, LP_SRLG);
+  /* force protocols to update LINK STATE due to parameters change */
+    if (if_is_operative (ifp))
+      zebra_interface_parameters_update (ifp);
+  return CMD_SUCCESS;
+}
+/* ISCD*/
+
+DEFUN (link_params_iscd,
+       link_params_iscd_cmd,
+       "switching swcap (0-256) encoding (1-11) max_lsp (0-7) BANDWIDTH",
+       "Interface Switching Capability Descriptor\n"
+	   "Switching Capability\n"
+	   "Encoding Type\n"
+       "Maximum LSP Bandwidth at each priority level\n")
+{
+  int idx_number = 6;
+  int idx_bandwidth=7;
+  VTY_DECLVAR_CONTEXT (interface, ifp);
+  struct if_link_params *iflp = if_link_params_get (ifp);
+  u_int8_t swcap;
+  u_int8_t encodType;
+  int  priority;
+  float bw;
+
+      VTY_GET_ULONG("swcap", swcap, argv[2]->arg);
+      VTY_GET_ULONG("encodType", encodType, argv[4]->arg);
+
+
+  /* We don't have to consider about range check here. */
+    if (sscanf (argv[idx_number]->arg, "%d", &priority) != 1)
+      {
+        vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
+                 VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+
+    if (sscanf (argv[idx_bandwidth]->arg, "%g", &bw) != 1)
+      {
+        vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
+                 VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+
+    /* Check that bandwidth is not greater than maximum bandwidth parameter */
+    if (bw > iflp->max_bw)
+      {
+        vty_out (vty,
+                 "maximum LSP Bandwidth could not be greater than Maximum Bandwidth (%g)%s",
+                 iflp->max_bw, VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+
+    /* Update sawap encodType */
+      link_param_cmd_set_uint32 (ifp, &iflp->Swcap, LP_ISCD, swcap);
+      link_param_cmd_set_uint32 (ifp, &iflp->encod_type, LP_ISCD, encodType);
+    /* Update Max LSP Bandwidth if needed */
+      link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
+      /* force protocols to update LINK STATE due to parameters change */
+        if (if_is_operative (ifp))
+          zebra_interface_parameters_update (ifp);
+
 
   return CMD_SUCCESS;
 }
+
+DEFUN (no_link_params_iscd,
+       no_link_params_iscd_cmd,
+       "no switching",
+       NO_STR
+       "Disable switching capability on this interface\n")
+{
+  VTY_DECLVAR_CONTEXT (interface, ifp);
+
+  /* Unset TE iscd */
+  link_param_cmd_unset(ifp, LP_ISCD);
+
+  return CMD_SUCCESS;
+}
+
+
 /*mes modifs*/
 
 
@@ -2985,4 +3065,6 @@ zebra_if_init (void)
   install_element(LINK_PARAMS_NODE, &exit_link_params_cmd);
   install_element(LINK_PARAMS_NODE, &link_params_srlg_cmd);
   install_element(LINK_PARAMS_NODE, &no_link_params_srlg_cmd);
+  install_element(LINK_PARAMS_NODE, &link_params_iscd_cmd);
+    install_element(LINK_PARAMS_NODE, &no_link_params_iscd_cmd);
 }

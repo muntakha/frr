@@ -165,7 +165,8 @@ struct if_stats
 #define LP_RES_BW               0x0400
 #define LP_AVA_BW               0x0800
 #define LP_USE_BW               0x1000
-#define LP_SRLG			0x2000
+#define LP_SRLG			        0x2000
+#define LP_ISCD			        0x4000
 
 #define IS_PARAM_UNSET(lp, st) !(lp->lp_status & st)
 #define IS_PARAM_SET(lp, st) (lp->lp_status & st)
@@ -195,6 +196,10 @@ struct if_link_params {
   float ava_bw;          /* Available Bandwidth */
   float use_bw;          /* Utilized Bandwidth */
   u_int32_t srlg;        /* Shared risk link group*/
+  u_int8_t Swcap;        /* Switching capability*/
+  u_int8_t encod_type;   /*encodage*/
+  u_int16_t padding;     /*reserved*/
+  float max_lsp_bw [MAX_CLASS_TYPE];  /*Maximum LSP Bandwidth*/
 };
 
 #define INTERFACE_LINK_PARAMS_SIZE   sizeof(struct if_link_params)

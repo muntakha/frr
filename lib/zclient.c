@@ -1190,6 +1190,20 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
   iflp->ava_bw = stream_getf (s);
   iflp->use_bw = stream_getf (s);
   iflp->srlg = stream_getl (s); /*mes modifs*/
+  iflp->Swcap=stream_getl (s);
+  iflp->encod_type=stream_getl (s);
+
+  uint32_t maxLspclassnum = stream_getl (s);
+    {
+      unsigned int j;
+      for (j= 0; j < maxLspclassnum && j < MAX_CLASS_TYPE; j++)
+        iflp->max_lsp_bw[j] = stream_getf (s);
+      if (j < maxLspclassnum)
+        zlog_err ("%s: received %d > %d (MAX_CLASS_TYPE) maxLsp entries"
+                  " - outdated library?",
+                  __func__, maxLspclassnum, MAX_CLASS_TYPE);
+    }
+
 }
 
 struct interface *
@@ -1257,7 +1271,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 {
   size_t w;
   struct if_link_params *iflp;
-  int i;
+  int i,j;
 
   if (s == NULL || ifp == NULL || ifp->link_params == NULL)
     return 0;
@@ -1289,6 +1303,10 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
   w += stream_putf (s, iflp->ava_bw);
   w += stream_putf (s, iflp->use_bw);
   w += stream_putl (s, iflp->srlg); /*mes modifs*/
+  w += stream_putl (s, iflp->Swcap);
+  w += stream_putl (s, iflp->encod_type);
+  for (j = 0; j < MAX_CLASS_TYPE; j++)
+  w += stream_putl (s, iflp->max_lsp_bw[j]);
   return w;
 }
 

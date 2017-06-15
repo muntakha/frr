@@ -426,6 +426,10 @@ set_linkparams_link_header (struct mpls_te_link *lp)
    if (ntohs (lp->srlg.header.type) != 0)
      length += TLV_SIZE (&lp->srlg.header);
 
+   /* TE_LINK_SUBTLV_ISCD */
+      if (ntohs (lp->iscd.header.type) != 0)
+        length += TLV_SIZE (&lp->iscd.header);
+
 
   lp->link_header.header.type   = htons (TE_TLV_LINK);
   lp->link_header.header.length = htons (length);
@@ -717,6 +721,17 @@ set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
   lp->srlg.value = htonl (srlg);
   return;
 }
+
+static void
+set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
+{
+  lp->iscd.header.type   = htons (TE_LINK_SUBTLV_SRLG);
+  lp->iscd.header.length = htons (TE_LINK_SUBTLV_DEF_SIZE);
+  lp->iscd.Swcap=htonl (Swcap);
+  lp->iscd.encod_type=htonl (encod_type);
+  lp->iscd.maw_lsp_bw[priority]=htonl (max_lsp_bw);
+  return;
+}
 /*mes modifs*/
 
 /* Update TE parameters from Interface */
@@ -807,6 +822,12 @@ update_linkparams(struct mpls_te_link *lp)
       set_linkparams_srlg(lp, ifp->link_params->srlg);
     else
       TLV_TYPE(lp->srlg) = 0;
+
+  if (IS_PARAM_SET(ifp->link_params, LP_ISCD))
+	  for (i = 0; i < MAX_CLASS_TYPE; i++)
+        set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[i], i);
+      else
+        TLV_TYPE(lp->iscd) = 0;
   /*mes modifs*/
   /* RFC5392 */
   if (IS_PARAM_SET(ifp->link_params, LP_RMT_AS))
@@ -1203,7 +1224,9 @@ build_link_tlv (struct stream *s, struct mpls_te_link *lp)
   build_link_subtlv (s, &lp->res_bw.header);
   build_link_subtlv (s, &lp->ava_bw.header);
   build_link_subtlv (s, &lp->use_bw.header);
-  build_link_subtlv (s, &lp->srlg.header);
+  build_link_subtlv (s, &lp->srlg.header); /*mes modifs*/
+  build_link_subtlv (s, &lp->iscd.header); /*mes modifs*/
+
 
 
   return;
@@ -2150,6 +2173,38 @@ show_vty_link_subtlv_srlg (struct vty *vty, struct te_tlv_header *tlvh)
 
   return TLV_SIZE (tlvh);
 }
+
+static u_int16_t
+show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
+{
+  struct te_link_subtlv_iscd *top;
+  float fval1, fval2;
+  int i;
+
+  top = (struct te_link_subtlv_iscd *) tlvh;
+  if (vty != NULL)
+    vty_out (vty, "  Maximum LSP Bandwidth per Class Type in Byte/s:%s", VTY_NEWLINE);
+  else
+    zlog_debug ("    Maximum LSP Bandwidth per Class Type in Byte/s:");
+  for (i = 0; i < MAX_CLASS_TYPE; i+=2)
+    {
+      fval1 = ntohf (top->maw_lsp_bw[i]);
+      fval2 = ntohf (top->maw_lsp_bw[i+1]);
+
+      if (vty != NULL)
+        vty_out(vty, "    [%d]: %g (Bytes/sec),\t[%d]: %g (Bytes/sec)%s",
+                i, fval1, i+1, fval2, VTY_NEWLINE);
+      else
+        zlog_debug ("      [%d]: %g (Bytes/sec),\t[%d]: %g (Bytes/sec)",
+                    i, fval1, i+1, fval2);
+    }
+  zlog_debug ("    Switching Capability: %u",
+                  (u_int8_t) ntohl (top->Swcap));
+  zlog_debug ("    Encodage Type: %u",
+                    (u_int8_t) ntohl (top->encod_type));
+
+  return TLV_SIZE (tlvh);
+}
 /*mes modifs*/
 static u_int16_t
 ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
@@ -2226,6 +2281,9 @@ ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
         case TE_LINK_SUBTLV_SRLG:
                   sum += show_vty_link_subtlv_srlg (vty, tlvh);
                   break;
+        case TE_LINK_SUBTLV_ISCD:
+                 sum += show_vty_link_subtlv_iscd (vty, tlvh);
+                 break;
         default:
           sum += show_vty_unknown_tlv (vty, tlvh);
           break;
@@ -2642,6 +2700,10 @@ show_mpls_te_link_sub (struct vty *vty, struct interface *ifp)
       /* mes modifs*/
       if (TLV_TYPE(lp->srlg) != 0)
              show_vty_link_subtlv_srlg(vty, &lp->srlg.header);
+           vty_out (vty, "---------------%s%s", VTY_NEWLINE, VTY_NEWLINE);
+
+      if (TLV_TYPE(lp->iscd) != 0)
+             show_vty_link_subtlv_iscd(vty, &lp->iscd.header);
            vty_out (vty, "---------------%s%s", VTY_NEWLINE, VTY_NEWLINE);
       /* mes modifs*/
     }
