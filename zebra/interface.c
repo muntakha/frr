@@ -1690,6 +1690,23 @@ link_param_cmd_set_uint32 (struct interface *ifp, uint32_t *field,
         zebra_interface_parameters_update (ifp);
     }
 }
+
+static void
+link_param_cmd_set_uint8 (struct interface *ifp, uint8_t *field,
+                           uint32_t type, uint8_t value)
+{
+  /* Update field as needed */
+  if (IS_PARAM_UNSET(ifp->link_params, type) || *field != value)
+    {
+      *field = value;
+      SET_PARAM(ifp->link_params, type);
+
+      /* force protocols to update LINK STATE due to parameters change */
+      if (if_is_operative (ifp))
+        zebra_interface_parameters_update (ifp);
+    }
+}
+
 static void
 link_param_cmd_set_float (struct interface *ifp, float *field,
                           uint32_t type, float value)
@@ -2410,12 +2427,16 @@ DEFUN (no_link_params_srlg,
 
 DEFUN (link_params_iscd,
        link_params_iscd_cmd,
-       "switching swcap (0-256) encoding (1-11)",
-       "Interface Switching Capability Descriptor\n"
-	   "Switching Capability\n"
-	   "value of switching capability\n"
-	   "Encoding Type\n"
-	   "value of Encoding Type\n")
+	       "switching swcap (0-256) encoding (1-11) priority (0-7) max_lsp BANDWIDTH",
+	       "Interface Switching Capability Descriptor\n"
+	   	   "Switching Capability\n"
+	   	   "value of switching capability\n"
+	   	   "Encoding Type\n"
+	   	   "value of Encoding Type\n"
+	   	   "priority max LSP\n"
+	   	   "max LSP priority value\n"
+	        "Maximum LSP Bandwidth at each priority level\n"
+	   	   "Bytes/second (IEEE floating point format)\n")
 {
   int idx_number = 6;
   int idx_bandwidth=8;
@@ -2432,7 +2453,7 @@ DEFUN (link_params_iscd,
       VTY_GET_ULONG("encod_type", encod_type, argv[4]->arg);
 
 
- /*  We don't have to consider about range check here.
+  /* We don't have to consider about range check here.*/
     if (sscanf (argv[idx_number]->arg, "%d", &priority) != 1)
       {
         vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
@@ -2447,21 +2468,21 @@ DEFUN (link_params_iscd,
         return CMD_WARNING;
       }
 
-     Check that bandwidth is not greater than maximum bandwidth parameter
+   /*  Check that bandwidth is not greater than maximum bandwidth parameter*/
     if (bw > iflp->max_bw)
       {
         vty_out (vty,
                  "maximum LSP Bandwidth could not be greater than Maximum Bandwidth (%g)%s",
                  iflp->max_bw, VTY_NEWLINE);
         return CMD_WARNING;
-      }*/
+      }
 
     /* Update swcap encodType */
-      link_param_cmd_set_uint32 (ifp, &iflp->Swcap, LP_ISCD, swcap);
-      link_param_cmd_set_uint32 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
-    /* Update Max LSP Bandwidth if needed
+      link_param_cmd_set_uint8 (ifp, &iflp->Swcap, LP_ISCD, swcap);
+      link_param_cmd_set_uint8 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
+    /* Update Max LSP Bandwidth if needed*/
       link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
-*/
+
 
   return CMD_SUCCESS;
 }
