@@ -2410,21 +2410,17 @@ DEFUN (no_link_params_srlg,
 
 DEFUN (link_params_iscd,
        link_params_iscd_cmd,
-       "switching swcap (0-256) encoding (1-11) priority (0-7) max_lsp BANDWIDTH",
+       "switching swcap (0-256) encoding (1-11)",
        "Interface Switching Capability Descriptor\n"
 	   "Switching Capability\n"
 	   "value of switching capability\n"
 	   "Encoding Type\n"
-	   "value of switching capability\n"
-	   "priority max LSP\n"
-	   "max LSP priority value\n"
-       "Maximum LSP Bandwidth at each priority level\n"
-	   "Bytes/second (IEEE floating point format)\n")
+	   "value of Encoding Type\n")
 {
   int idx_number = 6;
   int idx_bandwidth=8;
   u_int8_t swcap;
-  u_int8_t encodType;
+  u_int8_t encod_type;
   int  priority;
   float bw;
 
@@ -2432,11 +2428,11 @@ DEFUN (link_params_iscd,
       struct if_link_params *iflp = if_link_params_get (ifp);
 
 
-      VTY_GET_ULONG("swcap", swcap, argv[2]->arg);
-      VTY_GET_ULONG("encodType", encodType, argv[4]->arg);
+      VTY_GET_ULONG("Swcap", swcap, argv[2]->arg);
+      VTY_GET_ULONG("encod_type", encod_type, argv[4]->arg);
 
 
-  /* We don't have to consider about range check here. */
+ /*  We don't have to consider about range check here.
     if (sscanf (argv[idx_number]->arg, "%d", &priority) != 1)
       {
         vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
@@ -2451,21 +2447,21 @@ DEFUN (link_params_iscd,
         return CMD_WARNING;
       }
 
-    /* Check that bandwidth is not greater than maximum bandwidth parameter */
+     Check that bandwidth is not greater than maximum bandwidth parameter
     if (bw > iflp->max_bw)
       {
         vty_out (vty,
                  "maximum LSP Bandwidth could not be greater than Maximum Bandwidth (%g)%s",
                  iflp->max_bw, VTY_NEWLINE);
         return CMD_WARNING;
-      }
+      }*/
 
-    /* Update sawap encodType */
-      link_param_cmd_set_uint32 (ifp, (uint32_t)&iflp->Swcap, LP_ISCD, (uint32_t)swcap);
-      link_param_cmd_set_uint32 (ifp, (uint32_t)&iflp->encod_type, LP_ISCD, (uint32_t)encodType);
-    /* Update Max LSP Bandwidth if needed */
+    /* Update swcap encodType */
+      link_param_cmd_set_uint32 (ifp, &iflp->Swcap, LP_ISCD, swcap);
+      link_param_cmd_set_uint32 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
+    /* Update Max LSP Bandwidth if needed
       link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
-
+*/
 
   return CMD_SUCCESS;
 }
