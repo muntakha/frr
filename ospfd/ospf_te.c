@@ -726,7 +726,7 @@ static void
 set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
 {
   lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
-  lp->iscd.header.length = htons (TE_LINK_SUBTLV_DEF_SIZE);
+  lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE);
   lp->iscd.Swcap= Swcap;
   lp->iscd.encod_type= encod_type;
   lp->iscd.padding=0;

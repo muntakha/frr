@@ -259,6 +259,7 @@ struct te_link_subtlv_llri
 /* mes modifs*/
 /* RFC4203: Interface Switching Capability Descriptor*/
 #define TE_LINK_SUBTLV_ISCD		15
+#define TE_LINK_SUBTLV_ISCD_SIZE 36
 struct te_link_subtlv_iscd
 {
   struct te_tlv_header header;          /*Value length is 4 octets. */

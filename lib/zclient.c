@@ -1306,7 +1306,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
   w += stream_putl (s, (u_int32_t) iflp->Swcap);
   w += stream_putl (s, (u_int32_t) iflp->encod_type);
   for (j = 0; j < MAX_CLASS_TYPE; j++)
-  w += stream_putl (s, iflp->max_lsp_bw[j]);
+  w += stream_putf (s, iflp->max_lsp_bw[j]);
   return w;
 }
 
