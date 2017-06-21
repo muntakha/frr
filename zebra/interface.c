@@ -2463,7 +2463,7 @@ DEFUN (link_params_iscd,
 
       VTY_GET_ULONG("Swcap", swcap, argv[2]->arg);
       VTY_GET_ULONG("encod_type", encod_type, argv[4]->arg);
-      bw= iflp->default_bw;
+      bw= iflp->max_bw;
     /* Update swcap encodType */
       link_param_cmd_set_uint8 (ifp, &iflp->Swcap, LP_ISCD, swcap);
       link_param_cmd_set_uint8 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
@@ -2477,15 +2477,14 @@ DEFUN (link_params_iscd,
 
 DEFUN (link_params_iscd1,
 		link_params_iscd1_cmd,
-	       "switching priority (0-7) max_lsp BANDWIDTH",
-	       "Interface Switching Capability Descriptor\n"
-	   	   "priority max LSP\n"
-	   	   "max LSP priority value\n"
-	       "Maximum LSP Bandwidth at each priority level\n"
-	   	   "Bytes/second (IEEE floating point format)\n")
+	       "max_lsp_bw BANDWIDTH priority (0-7) ",
+		   "Maximum LSP Bandwidth at each priority level\n"
+		   "Bytes/second (IEEE floating point format)\n"
+		   "priority max LSP\n"
+	   	   "max LSP priority value\n")
 {
-  int idx_number = 2;
-  int idx_bandwidth=4;
+  int idx_number = 3;
+  int idx_bandwidth=1;
   int  priority;
   float bw;
 
@@ -2971,7 +2970,8 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
   if (IS_PARAM_SET(iflp, LP_SRLG))
       vty_out(vty, "  srlg %u%s",iflp->srlg, VTY_NEWLINE);
   if (IS_PARAM_SET(iflp, LP_ISCD))
-        vty_out(vty, "  switching capability %u%s",iflp->Swcap, VTY_NEWLINE);
+  {
+	    vty_out(vty, "  switching capability %u%s",iflp->Swcap, VTY_NEWLINE);
         vty_out(vty, "  Encoding Type %u%s",iflp->encod_type, VTY_NEWLINE);
         {
               for (i = 0; i < 8; i++)
@@ -2979,6 +2979,7 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
         	  vty_out(vty, "  max_lsp_bw %d %g%s",
         		  i, iflp->max_lsp_bw[i], VTY_NEWLINE);
             }
+  }
   vty_out(vty, "  exit-link-params%s", VTY_NEWLINE);
   return 0;
 }
