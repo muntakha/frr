@@ -730,7 +730,7 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
   lp->iscd.Swcap= Swcap;
   lp->iscd.encod_type= encod_type;
   lp->iscd.padding=0;
-  lp->iscd.maw_lsp_bw[priority]=htonl (max_lsp_bw);
+  lp->iscd.maw_lsp_bw[priority]=htonf (max_lsp_bw);
   return;
 }
 /*mes modifs*/

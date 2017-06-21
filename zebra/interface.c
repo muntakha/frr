@@ -2974,8 +2974,7 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
 	    vty_out(vty, "  switching capability %u%s",iflp->Swcap, VTY_NEWLINE);
         vty_out(vty, "  Encoding Type %u%s",iflp->encod_type, VTY_NEWLINE);
         {
-              for (i = 0; i < 8; i++)
-        	if (iflp->max_lsp_bw[i] != iflp->default_bw)
+            for (i = 0; i < 8; i++)
         	  vty_out(vty, "  max_lsp_bw %d %g%s",
         		  i, iflp->max_lsp_bw[i], VTY_NEWLINE);
             }
