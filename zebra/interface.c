@@ -2444,12 +2444,12 @@ DEFUN (no_link_params_srlg,
 
 DEFUN (link_params_iscd,
        link_params_iscd_cmd,
-	       "switching swcap (0-256) encoding (1-11)",
-	       "Interface Switching Capability Descriptor\n"
-	   	   "Switching Capability\n"
-	   	   "value of switching capability\n"
-	   	   "Encoding Type\n"
-	   	   "value of Encoding Type\n")
+	   "switching swcap (0-256) encoding (1-11)",
+	   "Interface Switching Capability Descriptor\n"
+	   "Switching Capability\n"
+	   "value of switching capability\n"
+	   "Encoding Type\n"
+	   "value of Encoding Type\n")
 {
   u_int8_t swcap;
   u_int8_t encod_type;
@@ -2474,6 +2474,55 @@ DEFUN (link_params_iscd,
 
   return CMD_SUCCESS;
 }
+
+DEFUN (link_params_iscd1,
+		link_params_iscd1_cmd,
+	       "switching priority (0-7) max_lsp BANDWIDTH",
+	       "Interface Switching Capability Descriptor\n"
+	   	   "priority max LSP\n"
+	   	   "max LSP priority value\n"
+	       "Maximum LSP Bandwidth at each priority level\n"
+	   	   "Bytes/second (IEEE floating point format)\n")
+{
+  int idx_number = 2;
+  int idx_bandwidth=4;
+  int  priority;
+  float bw;
+
+      VTY_DECLVAR_CONTEXT (interface, ifp);
+      struct if_link_params *iflp = if_link_params_get (ifp);
+
+  /* We don't have to consider about range check here.*/
+    if (sscanf (argv[idx_number]->arg, "%d", &priority) != 1)
+      {
+        vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
+                 VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+
+    if (sscanf (argv[idx_bandwidth]->arg, "%g", &bw) != 1)
+      {
+        vty_out (vty, "link_params_maxlsp_bw: fscanf: %s%s", safe_strerror (errno),
+                 VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+
+   /*  Check that bandwidth is not greater than maximum bandwidth parameter*/
+    if (bw > iflp->max_bw)
+      {
+        vty_out (vty,
+                 "maximum LSP Bandwidth could not be greater than Maximum Bandwidth (%g)%s",
+                 iflp->max_bw, VTY_NEWLINE);
+        return CMD_WARNING;
+      }
+    /* Update Max LSP Bandwidth if needed*/
+      link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
+
+
+  return CMD_SUCCESS;
+}
+
+
 
 DEFUN (no_link_params_iscd,
        no_link_params_iscd_cmd,
@@ -2919,6 +2968,17 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
   if (IS_PARAM_SET(iflp, LP_RMT_AS))
     vty_out(vty, "  neighbor %s as %u%s", inet_ntoa(iflp->rmt_ip),
         iflp->rmt_as, VTY_NEWLINE);
+  if (IS_PARAM_SET(iflp, LP_SRLG))
+      vty_out(vty, "  srlg %u%s",iflp->srlg, VTY_NEWLINE);
+  if (IS_PARAM_SET(iflp, LP_ISCD))
+        vty_out(vty, "  switching capability %u%s",iflp->Swcap, VTY_NEWLINE);
+        vty_out(vty, "  Encoding Type %u%s",iflp->encod_type, VTY_NEWLINE);
+        {
+              for (i = 0; i < 8; i++)
+        	if (iflp->max_lsp_bw[i] != iflp->default_bw)
+        	  vty_out(vty, "  max_lsp_bw %d %g%s",
+        		  i, iflp->max_lsp_bw[i], VTY_NEWLINE);
+            }
   vty_out(vty, "  exit-link-params%s", VTY_NEWLINE);
   return 0;
 }
@@ -3075,5 +3135,6 @@ zebra_if_init (void)
   install_element(LINK_PARAMS_NODE, &link_params_srlg_cmd);
   install_element(LINK_PARAMS_NODE, &no_link_params_srlg_cmd);
   install_element(LINK_PARAMS_NODE, &link_params_iscd_cmd);
-    install_element(LINK_PARAMS_NODE, &no_link_params_iscd_cmd);
+  install_element(LINK_PARAMS_NODE, &link_params_iscd1_cmd);
+  install_element(LINK_PARAMS_NODE, &no_link_params_iscd_cmd);
 }
