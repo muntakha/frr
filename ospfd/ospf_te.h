@@ -266,7 +266,7 @@ struct te_link_subtlv_iscd
   u_int8_t Swcap;                       /*Switching Capability  */
   u_int8_t encod_type;                  /*The Encoding field*/
   u_int16_t padding;		            /*Reserved*/
-  float maw_lsp_bw [MAX_CLASS_TYPE];    /*Maximum LSP Bandwidth is encoded as a list of eight 4 octet fields*/
+  float max_lsp_bw [MAX_CLASS_TYPE];    /*Maximum LSP Bandwidth is encoded as a list of eight 4 octet fields*/
   struct Sc_specific_information sc_si;  /*Switching Capability specific information*/
 };
 

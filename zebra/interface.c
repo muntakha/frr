@@ -2463,7 +2463,7 @@ DEFUN (link_params_iscd,
 
       VTY_GET_ULONG("Swcap", swcap, argv[2]->arg);
       VTY_GET_ULONG("encod_type", encod_type, argv[4]->arg);
-      bw= iflp->max_bw;
+      bw= iflp->default_bw;
     /* Update swcap encodType */
       link_param_cmd_set_uint8 (ifp, &iflp->Swcap, LP_ISCD, swcap);
       link_param_cmd_set_uint8 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
@@ -2474,6 +2474,7 @@ DEFUN (link_params_iscd,
 
   return CMD_SUCCESS;
 }
+
 
 DEFUN (link_params_iscd1,
 		link_params_iscd1_cmd,

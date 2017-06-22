@@ -730,7 +730,7 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
   lp->iscd.Swcap= Swcap;
   lp->iscd.encod_type= encod_type;
   lp->iscd.padding=0;
-  lp->iscd.maw_lsp_bw[priority]=htonf (max_lsp_bw);
+  lp->iscd.max_lsp_bw[priority]= htonf (max_lsp_bw);
   return;
 }
 /*mes modifs*/
@@ -2199,11 +2199,22 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
         zlog_debug ("      [%d]: %g (Bytes/sec),\t[%d]: %g (Bytes/sec)",
                     i, fval1, i+1, fval2);
     }
-  zlog_debug ("    Switching Capability: %u",
-                   (top->Swcap));
-  zlog_debug ("    Encoding Type: %u",
-                    (top->encod_type));
+  if (vty != NULL)
+  {
+  vty_out (vty, "  Switching Capability: %u%s",
+                (top->Swcap), VTY_NEWLINE);
+  vty_out (vty, "  Encoding Type: %u%s",
+               (top->encod_type), VTY_NEWLINE);
+  }
 
+  else
+    {
+
+       zlog_debug ("    Switching Capability: %u",
+                   (top->Swcap));
+      zlog_debug ("    Encoding Type: %u",
+                    (top->encod_type));
+    }
   return TLV_SIZE (tlvh);
 }
 /*mes modifs*/
