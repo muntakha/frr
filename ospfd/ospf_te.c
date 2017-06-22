@@ -2189,8 +2189,8 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
     zlog_debug ("    Maximum LSP Bandwidth per Class Type in Byte/s:");
   for (i = 0; i < MAX_CLASS_TYPE; i+=2)
     {
-      fval1 = ntohf (top->maw_lsp_bw[i]);
-      fval2 = ntohf (top->maw_lsp_bw[i+1]);
+      fval1 = ntohf (top->max_lsp_bw[i]);
+      fval2 = ntohf (top->max_lsp_bw[i+1]);
 
       if (vty != NULL)
         vty_out(vty, "    [%d]: %g (Bytes/sec),\t[%d]: %g (Bytes/sec)%s",
