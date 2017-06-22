@@ -2454,7 +2454,7 @@ DEFUN (link_params_iscd,
   u_int8_t swcap;
   u_int8_t encod_type;
   u_int16_t padding=0;
-  int priority=7;
+  int i,priority=7;
   float bw;
 
       VTY_DECLVAR_CONTEXT (interface, ifp);
@@ -2469,8 +2469,14 @@ DEFUN (link_params_iscd,
       link_param_cmd_set_uint8 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
       link_param_cmd_set_uint16 (ifp, &iflp->padding, LP_ISCD, padding);
       /* Update Max LSP Bandwidth if needed*/
-      link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
-
+      for (i=0; i<8;i++)
+      {  if(i==priority)
+            link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
+    	  else
+              link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, 0);
+      }
+      if (if_is_operative (ifp))
+           zebra_interface_parameters_update (ifp);
 
   return CMD_SUCCESS;
 }
@@ -2517,6 +2523,8 @@ DEFUN (link_params_iscd1,
       }
     /* Update Max LSP Bandwidth if needed*/
       link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
+      if (if_is_operative (ifp))
+           zebra_interface_parameters_update (ifp);
 
 
   return CMD_SUCCESS;
