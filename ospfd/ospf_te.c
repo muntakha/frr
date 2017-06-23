@@ -739,7 +739,7 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 static void
 update_linkparams(struct mpls_te_link *lp)
 {
-  int i;
+  int i,j;
   struct interface *ifp;
 
   /* Get the Interface structure */
@@ -825,8 +825,8 @@ update_linkparams(struct mpls_te_link *lp)
       TLV_TYPE(lp->srlg) = 0;
 
   if (IS_PARAM_SET(ifp->link_params, LP_ISCD))
-	  for (i = 0; i < MAX_CLASS_TYPE; i++)
-        set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[i], i);
+	  for (j = 0; j < MAX_CLASS_TYPE; j++)
+        set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j);
       else
         TLV_TYPE(lp->iscd) = 0;
   /*mes modifs*/

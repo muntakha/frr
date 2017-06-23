@@ -1248,7 +1248,7 @@ if_link_params_get (struct interface *ifp)
     iflp->unrsv_bw[i] = iflp->default_bw;
 
   /* Update Link parameters status */
-  iflp->lp_status = LP_TE_METRIC | LP_MAX_BW | LP_MAX_RSV_BW | LP_UNRSV_BW |LP_SRLG | LP_ISCD ;
+  iflp->lp_status = LP_TE_METRIC | LP_MAX_BW | LP_MAX_RSV_BW | LP_UNRSV_BW;
 
   /* Finally attach newly created Link Parameters */
   ifp->link_params = iflp;

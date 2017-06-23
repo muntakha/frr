@@ -1193,15 +1193,14 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
   iflp->Swcap=(u_int8_t) stream_getl (s);
   iflp->encod_type=(u_int8_t) stream_getl (s);
 
-  uint32_t maxLspclassnum = stream_getl (s);
     {
       unsigned int j;
-      for (j= 0; j < maxLspclassnum && j < MAX_CLASS_TYPE; j++)
+      for (j= 0; j < bwclassnum && j < MAX_CLASS_TYPE; j++)
         iflp->max_lsp_bw[j] = stream_getf (s);
-      if (j < maxLspclassnum)
+      if (j < bwclassnum)
         zlog_err ("%s: received %d > %d (MAX_CLASS_TYPE) maxLsp entries"
                   " - outdated library?",
-                  __func__, maxLspclassnum, MAX_CLASS_TYPE);
+                  __func__, bwclassnum, MAX_CLASS_TYPE);
     }
 
 }

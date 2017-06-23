@@ -1162,6 +1162,14 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
       /* mes modifs*/
       if (IS_PARAM_SET(iflp, LP_SRLG))
              vty_out(vty, "    shared risk link group %u%s",iflp->srlg, VTY_NEWLINE);
+      if (IS_PARAM_SET(iflp, LP_ISCD)) {
+             vty_out(vty, "    Maximun LSP Bandwidth per Class Type in Byte/s:%s", VTY_NEWLINE);
+             for (i = 0; i < MAX_CLASS_TYPE; i+=2)
+               vty_out(vty, "      [%d]: %g (Bytes/sec),\t[%d]: %g (Bytes/sec)%s",
+                       i, iflp->max_lsp_bw[i], i+1, iflp->max_lsp_bw[i+1], VTY_NEWLINE);
+             vty_out(vty, "    Switching Capability %u%s",iflp->Swcap, VTY_NEWLINE);
+             vty_out(vty, "    Encoding Type %u%s",iflp->encod_type, VTY_NEWLINE);
+           }
     }
 
  #ifdef RTADV
@@ -2469,7 +2477,7 @@ DEFUN (link_params_iscd,
       link_param_cmd_set_uint8 (ifp, &iflp->encod_type, LP_ISCD, encod_type);
       link_param_cmd_set_uint16 (ifp, &iflp->padding, LP_ISCD, padding);
       /* Update Max LSP Bandwidth if needed*/
-      for (i=0; i<8;i++)
+      for (i=0; i<8 ;i++)
       {  if(i==priority)
             link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
     	  else
@@ -2534,7 +2542,7 @@ DEFUN (link_params_iscd1,
 
 DEFUN (no_link_params_iscd,
        no_link_params_iscd_cmd,
-       "no switching",
+       "no switching capability",
        NO_STR
        "Disable switching capability on this interface\n")
 {

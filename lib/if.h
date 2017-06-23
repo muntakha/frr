@@ -199,7 +199,7 @@ struct if_link_params {
   u_int8_t Swcap;        /* Switching capability*/
   u_int8_t encod_type;   /*encodage*/
   u_int16_t padding;     /*reserved*/
-  float max_lsp_bw [MAX_CLASS_TYPE];  /*Maximum LSP Bandwidth*/
+  float max_lsp_bw[MAX_CLASS_TYPE];  /*Maximum LSP Bandwidth*/
 };
 
 #define INTERFACE_LINK_PARAMS_SIZE   sizeof(struct if_link_params)
