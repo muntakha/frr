@@ -2570,10 +2570,9 @@ DEFUN (no_link_params_iscd,
 
 DEFUN (link_params_iscd_scsi,
 		link_params_iscd_scsi_cmd,
-		"grid (fixed_50GHz,fixed_100GHz_as_50) [frequency FREQUENCY]  ",
+		"grid FIXED_GRID",
 		"Selection of the spectrum representation\n"
-		"Fixed grids at 100 GHz or 50 GHz\n"
-		"frequency in THz\n")
+		"Fixed grids at 100 GHz or 50 GHz\n")
 {
 	int idx_number =1;
 	char grid_fixe[12], grid_fixe1[19];
