@@ -2254,6 +2254,18 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 					(top->sc_si.av_lab.lab_set.base_lab.n));
 		}
 	if (vty != NULL)
+			{
+				vty_out (vty, "  Action: %d%s",
+						(GET_SCSI_ACTION(top->sc_si.av_lab.lab_set.action_numLabel)), VTY_NEWLINE);
+			}
+			else
+			{
+
+				zlog_debug ("    N VALUE: %d",
+						(top->sc_si.av_lab.lab_set.base_lab.n));
+			}
+
+	if (vty != NULL)
 			vty_out (vty, "  Bitmap per Block of Byte:%s", VTY_NEWLINE);
 		else
 			zlog_debug ("    Bitmap per Block of Byte:");

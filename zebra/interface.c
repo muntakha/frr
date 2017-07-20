@@ -2493,10 +2493,11 @@ DEFUN (link_params_iscd,
 	link_param_cmd_set_uint16 (ifp, &iflp->padding, LP_ISCD, padding);
 	/* Update Max LSP Bandwidth if needed*/
 	for (i=0; i<8 ;i++)
-	{  if(i==priority)
-		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, bw);
+	{
+		if(i==priority)
+		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
 	else
-		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[priority], LP_ISCD, 0);
+		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, 0);
 	}
 	if (if_is_operative (ifp))
 		zebra_interface_parameters_update (ifp);
@@ -2593,14 +2594,14 @@ DEFUN (link_params_iscd_scsi,
 	if (strcmp(argv[idx_number]->arg,grid_fixe) == 0)
 	{
 		cs=2;
-		for(int i=0; i<11; i++)
+		for(int i=0; i<SIZE_BITMAP_TAB; i++)
 			bitmap[i]=0xFF; //bit set 1 if available
 	}
 	/* check if the grid is fixed at 100GHz*/
 	else if (strcmp(argv[idx_number]->arg,grid_fixe1) == 0)
 	{
 		cs=1;
-		for(int i=0; i<11; i++)
+		for(int i=0; i<SIZE_BITMAP_TAB; i++)
 			bitmap[i]=0x55;// even bits available  and odd bits no available
 	}
 	else
