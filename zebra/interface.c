@@ -2610,18 +2610,21 @@ DEFUN (link_params_iscd_scsi,
 		return CMD_WARNING;
 	}
 
-
 	/* Update SCSI parameters*/
-	link_param_cmd_set_uint8 (ifp, &iflp->pri, LP_ISCD, pri);
-	link_param_cmd_set_uint16 (ifp, &iflp->numLabel, LP_ISCD,numLabel);
-	link_param_cmd_set_uint8 (ifp, &iflp->action, LP_ISCD,action);
-	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD,cs);
-	link_param_cmd_set_uint8 (ifp, &iflp->grid, LP_ISCD,grid);
-	link_param_cmd_set_uint16 (ifp, &iflp->identifier, LP_ISCD,0);
-	link_param_cmd_set_int16 (ifp, &iflp->n, LP_ISCD,n);
-	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD,0);
+	if (IS_PARAM_UNSET(iflp, LP_ISCD_SCSI))
+			{
+				iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
+				SET_PARAM(iflp,LP_ISCD_SCSI);
+			}
+
+	link_param_cmd_set_uint8 (ifp, &iflp->pri, LP_ISCD_SCSI, pri);
+	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD_SCSI,cs);
+	link_param_cmd_set_uint8 (ifp, &iflp->grid, LP_ISCD_SCSI,grid);
+	link_param_cmd_set_uint16 (ifp, &iflp->identifier, LP_ISCD_SCSI,0);
+	link_param_cmd_set_int16 (ifp, &iflp->n, LP_ISCD_SCSI,n);
+	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
 	for(int j=0; j<SIZE_BITMAP_TAB; j++)
-		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD, bitmap[j]);
+		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);
 
 
 	if (if_is_operative (ifp))

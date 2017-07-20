@@ -741,8 +741,7 @@ set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int8_t cs,int16_t n, u_int8
 
 
 	lp->iscd.sc_si.av_lab.pri=0xFF;
-	lp->iscd.sc_si.av_lab.lab_set.action=4;
-	lp->iscd.sc_si.av_lab.lab_set.numLabel=88;
+	lp->iscd.sc_si.av_lab.lab_set.action_numLabel=SET_NUM_LABEL_ACTION(4,88);
 
 	lp->iscd.sc_si.av_lab.lab_set.base_lab.cs=cs;
 	lp->iscd.sc_si.av_lab.lab_set.base_lab.grid=1;
@@ -2245,13 +2244,13 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 	}
 	if (vty != NULL)
 		{
-			vty_out (vty, "  N VALUE: %u%s",
+			vty_out (vty, "  N VALUE: %d%s",
 					(top->sc_si.av_lab.lab_set.base_lab.n), VTY_NEWLINE);
 		}
 		else
 		{
 
-			zlog_debug ("    N VALUE: %u",
+			zlog_debug ("    N VALUE: %d",
 					(top->sc_si.av_lab.lab_set.base_lab.n));
 		}
 	if (vty != NULL)
@@ -2275,6 +2274,7 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 	return TLV_SIZE (tlvh);
 }
 /*mes modifs*/
+
 static u_int16_t
 ospf_mpls_te_show_link_subtlv (struct vty *vty, struct te_tlv_header *tlvh0,
 		u_int16_t subtotal, u_int16_t total)

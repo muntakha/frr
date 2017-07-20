@@ -179,6 +179,19 @@ struct if_stats
 #define UNSET_PARAM(lp, st) (lp->lp_status) &= ~(st)
 #define RESET_LINK_PARAM(lp) (lp->lp_status = LP_UNSET)
 
+
+#define SCSI_ACTION_MASK	0xf000	/*  4 bits */
+#define SCSI_NUM_LABEL_MASK	0x0fff	/* 12 bits */
+
+#define	GET_SCSI_ACTION(action) \
+	(((u_int16_t)(action) & SCSI_ACTION_MASK) >> 12)
+
+#define	GET_SCSI_NUM_LABEL(numlab) \
+	 ((u_int16_t)(numlab) & SCSI_NUM_LABEL_MASK)
+
+#define	SET_NUM_LABEL_ACTION(action, numlab) \
+	((((action) << 12) & SCSI_ACTION_MASK) \
+	| ((numlab)          & SCSI_NUM_LABEL_MASK))
 /* Link Parameters for Traffic Engineering */
 struct if_link_params {
 	u_int32_t lp_status;   /* Status of Link Parameters: */
@@ -208,8 +221,7 @@ struct if_link_params {
 	u_int8_t grid;
 	u_int8_t cs;
 	u_int16_t identifier;
-	u_int8_t action;
-	u_int16_t numLabel;
+	u_int16_t action_numLabel;
 	u_int8_t padding_bitmap;
 	u_int8_t pri;
 	u_int32_t  reserved;

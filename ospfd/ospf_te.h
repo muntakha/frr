@@ -128,6 +128,7 @@ struct te_tlv_header
 #define TLV_HDR(tlvh)      tlvh.header
 
 
+
 /*
  * Following section defines TLV body parts.
  */
@@ -264,8 +265,8 @@ struct base_label
 
 struct label_set
 {
-	u_int8_t action;
-	u_int16_t numLabel;
+	//u_int8_t action;
+	u_int16_t action_numLabel;
 	struct base_label base_lab;
 	u_int8_t bitmap[SIZE_BITMAP_TAB];//tableau de 11 octets
 	u_int8_t padding_bitmap;
