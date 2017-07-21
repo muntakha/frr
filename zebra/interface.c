@@ -1716,22 +1716,6 @@ link_param_cmd_set_uint16 (struct interface *ifp, uint16_t *field,
 }
 
 static void
-link_param_cmd_set_int16 (struct interface *ifp, int16_t *field,
-		uint32_t type, int16_t value)
-{
-	/* Update field as needed */
-	if (IS_PARAM_UNSET(ifp->link_params, type) || *field != value)
-	{
-		*field = value;
-		SET_PARAM(ifp->link_params, type);
-
-		/* force protocols to update LINK STATE due to parameters change */
-		if (if_is_operative (ifp))
-			zebra_interface_parameters_update (ifp);
-	}
-}
-
-static void
 link_param_cmd_set_uint8 (struct interface *ifp, uint8_t *field,
 		uint32_t type, uint8_t value)
 {
@@ -2495,9 +2479,9 @@ DEFUN (link_params_iscd,
 	for (i=0; i<8 ;i++)
 	{
 		if(i==priority)
-		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
-	else
-		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, 0);
+			link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
+		else
+			link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, 0);
 	}
 	if (if_is_operative (ifp))
 		zebra_interface_parameters_update (ifp);
@@ -2613,16 +2597,18 @@ DEFUN (link_params_iscd_scsi,
 
 	/* Update SCSI parameters*/
 	if (IS_PARAM_UNSET(iflp, LP_ISCD_SCSI))
-			{
-				iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
-				SET_PARAM(iflp,LP_ISCD_SCSI);
-			}
+	{
+		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
+		iflp->n=n;
+		SET_PARAM(iflp,LP_ISCD_SCSI);
+
+
+	}
 
 	link_param_cmd_set_uint8 (ifp, &iflp->pri, LP_ISCD_SCSI, pri);
 	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD_SCSI,cs);
 	link_param_cmd_set_uint8 (ifp, &iflp->grid, LP_ISCD_SCSI,grid);
 	link_param_cmd_set_uint16 (ifp, &iflp->identifier, LP_ISCD_SCSI,0);
-	link_param_cmd_set_int16 (ifp, &iflp->n, LP_ISCD_SCSI,n);
 	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
 	for(int j=0; j<SIZE_BITMAP_TAB; j++)
 		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);
@@ -3092,12 +3078,12 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
 						i, iflp->max_lsp_bw[i], VTY_NEWLINE);
 		}
 		if (IS_PARAM_SET(iflp, LP_ISCD_SCSI))
-			{
+		{
 			vty_out(vty, "  N VALUE %d%s",iflp->n, VTY_NEWLINE);
 			for (i = 0; i < 11; i++)
-					vty_out(vty, "  block of bytes%x %u%s",
-									i, iflp->bitmap[i], VTY_NEWLINE);
-			}
+				vty_out(vty, "  block of bytes%x %u%s",
+						i, iflp->bitmap[i], VTY_NEWLINE);
+		}
 
 	}
 	vty_out(vty, "  exit-link-params%s", VTY_NEWLINE);
