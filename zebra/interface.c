@@ -2601,14 +2601,12 @@ DEFUN (link_params_iscd_scsi,
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
 		iflp->n=n;
 		SET_PARAM(iflp,LP_ISCD_SCSI);
-
-
+		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,0);
+		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
+		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
 
-	link_param_cmd_set_uint8 (ifp, &iflp->pri, LP_ISCD_SCSI, pri);
-	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD_SCSI,cs);
-	link_param_cmd_set_uint8 (ifp, &iflp->grid, LP_ISCD_SCSI,grid);
-	link_param_cmd_set_uint16 (ifp, &iflp->identifier, LP_ISCD_SCSI,0);
+
 	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
 	for(int j=0; j<SIZE_BITMAP_TAB; j++)
 		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);

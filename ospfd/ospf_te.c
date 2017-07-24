@@ -734,18 +734,16 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 	return;
 }
 static void
-set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int8_t cs,int16_t n, u_int8_t bitmap, int i )
+set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i )
 {
 	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
-	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE);
+	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE + TE_LINK_SUBTLV_ISCD_SCSI_SIZE);
 
-
-	lp->iscd.sc_si.av_lab.pri=0xFF;
+    lp->iscd.sc_si.type_scsi=1;
+	lp->iscd.sc_si.av_lab.pri_reserved=SET_PRI_RESERVED(0XFF,0);
 	lp->iscd.sc_si.av_lab.lab_set.action_numLabel=SET_NUM_LABEL_ACTION(4,88);
 
-	lp->iscd.sc_si.av_lab.lab_set.base_lab.cs=cs;
-	lp->iscd.sc_si.av_lab.lab_set.base_lab.grid=1;
-	lp->iscd.sc_si.av_lab.lab_set.base_lab.identifier=0;
+	lp->iscd.sc_si.av_lab.lab_set.base_lab.grid_cs_identifier=grid_cs_id;
 	lp->iscd.sc_si.av_lab.lab_set.base_lab.n=n; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 
 	lp->iscd.sc_si.av_lab.lab_set.bitmap[i]=bitmap;
@@ -848,7 +846,7 @@ update_linkparams(struct mpls_te_link *lp)
 		if(IS_PARAM_SET(ifp->link_params,LP_ISCD_SCSI))
 		{
 			for (l = 0; l < SIZE_BITMAP_TAB; l++)
-				set_linkparams_iscd_scsi(lp, ifp->link_params->cs, ifp->link_params->n, ifp->link_params->bitmap[l],l);
+				set_linkparams_iscd_scsi(lp, ifp->link_params->grid_cs_identifier, ifp->link_params->n, ifp->link_params->bitmap[l],l);
 		}
 		for (j = 0; j < MAX_CLASS_TYPE; j++)
 			set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j);
@@ -2264,6 +2262,29 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 		zlog_debug ("    action: %d",
 				GET_SCSI_ACTION(top->sc_si.av_lab.lab_set.action_numLabel));
 	}
+	if (vty != NULL)
+		{
+			vty_out (vty, "  grid: %d%s",
+					(GET_GRID(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier)), VTY_NEWLINE);
+		}
+		else
+		{
+
+			zlog_debug ("    grid: %d",
+					GET_GRID(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier));
+		}
+	if (vty != NULL)
+		{
+			vty_out (vty, "  Action: %d%s",
+					(GET_CS(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier)), VTY_NEWLINE);
+		}
+		else
+		{
+
+			zlog_debug ("    action: %d",
+					GET_CS(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier));
+		}
+
 
 	if (vty != NULL)
 		vty_out (vty, "  Bitmap per Block of Byte:%s", VTY_NEWLINE);
@@ -2271,11 +2292,16 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 		zlog_debug ("    Bitmap per Block of Byte:");
 	for (j = 0; j < SIZE_BITMAP_TAB; j+=2)
 	{
-		fval3= top->sc_si.av_lab.lab_set.bitmap[j];
-		if(j==10)
-			fval4=top->sc_si.av_lab.lab_set.padding_bitmap;
-		else
-			fval4 =top->sc_si.av_lab.lab_set.bitmap[j+1];
+		if(j!=10)
+		{
+			fval3= top->sc_si.av_lab.lab_set.bitmap[j];
+			fval4=top->sc_si.av_lab.lab_set.bitmap[j+1];
+		}
+		else if(j==10)
+			{
+			fval3= top->sc_si.av_lab.lab_set.bitmap[j];
+			fval4 =top->sc_si.av_lab.lab_set.padding_bitmap;
+			}
 		if (vty != NULL)
 			vty_out(vty, "    [%d]: %x (Bytes),\t[%d]: %x (Bytes)%s",
 					j, fval3, j+1, fval4, VTY_NEWLINE);

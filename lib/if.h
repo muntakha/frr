@@ -179,7 +179,7 @@ struct if_stats
 #define UNSET_PARAM(lp, st) (lp->lp_status) &= ~(st)
 #define RESET_LINK_PARAM(lp) (lp->lp_status = LP_UNSET)
 
-
+/*getters and setters for action and numlabel of labelset stuct*/
 #define SCSI_ACTION_MASK	0xf000	/*  4 bits */
 #define SCSI_NUM_LABEL_MASK	0x0fff	/* 12 bits */
 
@@ -192,6 +192,40 @@ struct if_stats
 #define	SET_NUM_LABEL_ACTION(action, numlab) \
 	((((action) << 12) & SCSI_ACTION_MASK) \
 	| ((numlab)          & SCSI_NUM_LABEL_MASK))
+
+/*getters and setters for base label of the scsi*/
+#define ISCD_SCSI_GRID_MASK	0xf000
+#define ISCD_SCSI_CS_MASK	0x0e00
+#define ISCD_SCSI_IDENTIFIER_MASK 0x01ff
+
+#define	GET_GRID(grid) \
+	(((u_int16_t)(grid) & ISCD_SCSI_GRID_MASK) >> 12)
+
+#define	GET_CS(cs) \
+	 ((((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)>>9 )& (((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)<<4))
+
+#define	GET_IDENTIFIER(id) \
+	 ((u_int16_t)(id) & ISCD_SCSI_IDENTIFIER_MASK)
+
+#define	SET_GRID_CS_ID(grid, cs, identifier) \
+	( (((grid) << 12) & ISCD_SCSI_GRID_MASK) \
+	| ((((cs) <<9)         & ISCD_SCSI_CS_MASK) & ((((cs)>>4)          & ISCD_SCSI_CS_MASK)) )\
+	| ((identifier)          & ISCD_SCSI_IDENTIFIER_MASK))
+
+/*getters and setters for available label of the scsi*/
+#define ISCD_SCSI_PRI_MASK	0xff000000	/*  8 bits */
+#define ISCD_SCSI_RESERVED_MASK	0x00ffffff	/* 24 bits */
+
+#define	GET_PRI(pri) \
+	(((u_int32_t)(pri) & ISCD_SCSI_PRI_MASK) >> 24)
+
+#define	GET_reserved(rsv) \
+	 ((u_int32_t)(rsv) & ISCD_SCSI_RESERVED_MASK)
+
+#define	SET_PRI_RESERVED(pri, rsv) \
+	((((pri) << 24) & ISCD_SCSI_PRI_MASK) \
+	| ((rsv)          & ISCD_SCSI_RESERVED_MASK))
+
 /* Link Parameters for Traffic Engineering */
 struct if_link_params {
 	u_int32_t lp_status;   /* Status of Link Parameters: */
@@ -218,13 +252,10 @@ struct if_link_params {
 	float max_lsp_bw[MAX_CLASS_TYPE];  /*Maximum LSP Bandwidth*/
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	int16_t n;
-	u_int8_t grid;
-	u_int8_t cs;
-	u_int16_t identifier;
+	u_int16_t grid_cs_identifier;
 	u_int16_t action_numLabel;
 	u_int8_t padding_bitmap;
-	u_int8_t pri;
-	u_int32_t  reserved;
+	u_int32_t  pri_reserved;
 };
 
 #define INTERFACE_LINK_PARAMS_SIZE   sizeof(struct if_link_params)

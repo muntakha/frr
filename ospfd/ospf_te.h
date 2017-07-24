@@ -257,9 +257,7 @@ struct te_link_subtlv_llri
 /* RFC4203: Interface Switching Capability Descriptor*/
 struct base_label
 {
-	u_int8_t grid;
-	u_int8_t cs;
-	u_int16_t identifier;
+	u_int16_t grid_cs_identifier;
 	int16_t n;
 };
 
@@ -275,13 +273,13 @@ struct label_set
 //#define	BANDWITH_SUBTLV_AVLAB	1
 struct available_label
 {
-	u_int8_t pri;
-	u_int32_t  reserved;
+	u_int32_t  pri_reserved;
 	struct label_set lab_set;
 };
-
+#define TE_LINK_SUBTLV_ISCD_SCSI_SIZE 28
 struct Sc_specific_information
 {
+	u_int16_t type_scsi;
 	struct available_label av_lab;
 };
 
