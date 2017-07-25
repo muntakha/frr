@@ -736,14 +736,13 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 static void
 set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i )
 {
-	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
-	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE + TE_LINK_SUBTLV_ISCD_SCSI_SIZE);
+	lp->iscd.sc_si.header.type   = htons (TE_LINK_SUBTLV_ISCD_SCSI);
+	lp->iscd.sc_si.header.length = htons ( TE_LINK_SUBTLV_ISCD_SCSI_SIZE);
 
-    lp->iscd.sc_si.type_scsi=1;
 	lp->iscd.sc_si.av_lab.pri_reserved=SET_PRI_RESERVED(0XFF,0);
 	lp->iscd.sc_si.av_lab.lab_set.action_numLabel=SET_NUM_LABEL_ACTION(4,88);
 
-	lp->iscd.sc_si.av_lab.lab_set.base_lab.grid_cs_identifier=grid_cs_id;
+	lp->iscd.sc_si.av_lab.lab_set.base_lab.grid_cs_identifier=SET_GRID_CS_ID(1,GET_CS(grid_cs_id),0);
 	lp->iscd.sc_si.av_lab.lab_set.base_lab.n=n; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 
 	lp->iscd.sc_si.av_lab.lab_set.bitmap[i]=bitmap;
@@ -1251,6 +1250,7 @@ build_link_tlv (struct stream *s, struct mpls_te_link *lp)
 	build_link_subtlv (s, &lp->use_bw.header);
 	build_link_subtlv (s, &lp->srlg.header); /*mes modifs*/
 	build_link_subtlv (s, &lp->iscd.header); /*mes modifs*/
+	build_link_subtlv (s, &lp->iscd.sc_si.header); /*mes modifs*/
 
 
 
@@ -2204,7 +2204,7 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 {
 	struct te_link_subtlv_iscd *top;
 	float fval1, fval2;
-	u_int8_t fval3, fval4;
+	//u_int8_t fval3, fval4;
 	int i,j;
 
 	top = (struct te_link_subtlv_iscd *) tlvh;
@@ -2242,13 +2242,13 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 	}
 	if (vty != NULL)
 	{
-		vty_out (vty, "  N VALUE: %i%s",
+		vty_out (vty, "  n_value of base label: %d%s",
 				(top->sc_si.av_lab.lab_set.base_lab.n), VTY_NEWLINE);
 	}
 	else
 	{
 
-		zlog_debug ("    N VALUE: %i",
+		zlog_debug ("    n_value of base label: %d",
 				(top->sc_si.av_lab.lab_set.base_lab.n));
 	}
 	if (vty != NULL)
@@ -2275,24 +2275,24 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 		}
 	if (vty != NULL)
 		{
-			vty_out (vty, "  Action: %d%s",
+			vty_out (vty, "  cs: %d%s",
 					(GET_CS(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier)), VTY_NEWLINE);
 		}
 		else
 		{
 
-			zlog_debug ("    action: %d",
+			zlog_debug ("    cs: %d",
 					GET_CS(top->sc_si.av_lab.lab_set.base_lab.grid_cs_identifier));
 		}
 
 
 	if (vty != NULL)
-		vty_out (vty, "  Bitmap per Block of Byte:%s", VTY_NEWLINE);
+		vty_out (vty, "  Bitmap for fixed grid:%s", VTY_NEWLINE);
 	else
-		zlog_debug ("    Bitmap per Block of Byte:");
-	for (j = 0; j < SIZE_BITMAP_TAB; j+=2)
+		zlog_debug ("    Bitmap for fixed grid:");
+	for (j = 0; j < SIZE_BITMAP_TAB; j++)
 	{
-		if(j!=10)
+		/*if(j!=10)
 		{
 			fval3= top->sc_si.av_lab.lab_set.bitmap[j];
 			fval4=top->sc_si.av_lab.lab_set.bitmap[j+1];
@@ -2301,14 +2301,16 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 			{
 			fval3= top->sc_si.av_lab.lab_set.bitmap[j];
 			fval4 =top->sc_si.av_lab.lab_set.padding_bitmap;
-			}
+			}*/
+
 		if (vty != NULL)
-			vty_out(vty, "    [%d]: %x (Bytes),\t[%d]: %x (Bytes)%s",
-					j, fval3, j+1, fval4, VTY_NEWLINE);
+			vty_out(vty, "    %x.", top->sc_si.av_lab.lab_set.bitmap[j]);
 		else
-			zlog_debug ("      [%d]: %x (Bytes),\t[%d]: %x (Bytes)",
-					j, fval3, j+1, fval4);
+			zlog_debug ("      %x",
+					top->sc_si.av_lab.lab_set.bitmap[j]);
 	}
+	if (vty != NULL)
+				vty_out(vty, "    %x", top->sc_si.av_lab.lab_set.padding_bitmap);
 	return TLV_SIZE (tlvh);
 }
 /*mes modifs*/

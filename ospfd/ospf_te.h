@@ -276,10 +276,11 @@ struct available_label
 	u_int32_t  pri_reserved;
 	struct label_set lab_set;
 };
-#define TE_LINK_SUBTLV_ISCD_SCSI_SIZE 28
+#define TE_LINK_SUBTLV_ISCD_SCSI	1
+#define TE_LINK_SUBTLV_ISCD_SCSI_SIZE 24
 struct Sc_specific_information
 {
-	u_int16_t type_scsi;
+	struct te_tlv_header header;
 	struct available_label av_lab;
 };
 
