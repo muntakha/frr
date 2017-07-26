@@ -2559,13 +2559,13 @@ DEFUN (link_params_iscd_scsi,
 		"Selection of the spectrum representation\n"
 		"Fixed grids at 100 GHz or 50 GHz\n")
 {
-	int idx_number =1;
+	int i,j,idx_number =1;
 	char grid_fixe[12], grid_fixe1[19];
 	u_int8_t pri=0xFF;
 	u_int8_t cs;
 	u_int8_t grid=1;
 	int16_t n=-14; //{30,.....,-14}
-	u_int8_t bitmap[11];
+	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	u_int8_t action=4;
 	u_int16_t numLabel=88;
 
@@ -2578,7 +2578,7 @@ DEFUN (link_params_iscd_scsi,
 	if (strcmp(argv[idx_number]->arg,grid_fixe) == 0)
 	{
 		cs=2;
-		for(int i=0; i<SIZE_BITMAP_TAB; i++)
+		for(i=0; i<SIZE_BITMAP_TAB; i++)
 			bitmap[i]=0xFF; //bit set 1 if available
 	}
 	/* check if the grid is fixed at 100GHz*/
@@ -2600,7 +2600,6 @@ DEFUN (link_params_iscd_scsi,
 	{
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
 		iflp->n=n;
-		SET_PARAM(iflp,LP_ISCD_SCSI);
 		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,0);
 		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
 		SET_PARAM(iflp,LP_ISCD_SCSI);
@@ -2608,7 +2607,7 @@ DEFUN (link_params_iscd_scsi,
 
 
 	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
-	for(int j=0; j<SIZE_BITMAP_TAB; j++)
+	for(j=0; j<SIZE_BITMAP_TAB; j++)
 		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);
 
 

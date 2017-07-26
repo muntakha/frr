@@ -1192,7 +1192,7 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 	iflp->srlg = stream_getl (s); /*mes modifs*/
 	iflp->Swcap=(u_int8_t) stream_getl (s);
 	iflp->encod_type=(u_int8_t) stream_getl (s);
-	iflp->n=(int16_t)stream_getw (s);
+	iflp->n=stream_getw (s);
 	iflp->action_numLabel=(u_int16_t)stream_getl (s);
 	iflp->grid_cs_identifier=(u_int16_t)stream_getl (s);
 	{
@@ -1211,7 +1211,7 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 		if (l < bwclassnum)
 			zlog_err ("%s: received %d > %d (SIZE_BITMAP_TAB) bitmap entries"
 					" - outdated library?",
-					__func__, bwclassnum, MAX_CLASS_TYPE);
+					__func__, bwclassnum, SIZE_BITMAP_TAB);
 	}
 }
 

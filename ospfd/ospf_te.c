@@ -429,7 +429,8 @@ set_linkparams_link_header (struct mpls_te_link *lp)
 	/* TE_LINK_SUBTLV_ISCD */
 	if (ntohs (lp->iscd.header.type) != 0)
 		length += TLV_SIZE (&lp->iscd.header);
-
+	if (ntohs (lp->iscd.sc_si.header.type) != 0)
+			length += TLV_SIZE (&lp->iscd.sc_si.header);
 
 	lp->link_header.header.type   = htons (TE_TLV_LINK);
 	lp->link_header.header.length = htons (length);
@@ -2304,13 +2305,13 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 			}*/
 
 		if (vty != NULL)
-			vty_out(vty, "    %x.", top->sc_si.av_lab.lab_set.bitmap[j]);
+			vty_out(vty, "  %x.", top->sc_si.av_lab.lab_set.bitmap[j]);
 		else
 			zlog_debug ("      %x",
 					top->sc_si.av_lab.lab_set.bitmap[j]);
 	}
 	if (vty != NULL)
-				vty_out(vty, "    %x", top->sc_si.av_lab.lab_set.padding_bitmap);
+				vty_out(vty, "  %x", top->sc_si.av_lab.lab_set.padding_bitmap);
 	return TLV_SIZE (tlvh);
 }
 /*mes modifs*/
