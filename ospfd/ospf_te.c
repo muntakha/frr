@@ -76,6 +76,19 @@ enum oifstate
 	OI_ANY, OI_DOWN, OI_UP
 };
 
+
+/*size of scsi calculation */
+ int scsi_size(struct Sc_specific_information scsi )
+ {
+ 	int size;
+ 	int tmp;
+ 	tmp= (sizeof(scsi.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(scsi.av_lab.lab_set.action_numLabel));
+ 	tmp=tmp/32;
+ 	size=16 +tmp;
+
+ 	return size;
+ }
+
 /*------------------------------------------------------------------------*
  * Followings are initialize/terminate functions for MPLS-TE handling.
  *------------------------------------------------------------------------*/
@@ -726,8 +739,9 @@ set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
 static void
 set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
 {
+	int t=scsi_size(lp->iscd.sc_si);
 	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
-	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE);
+	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE+t);
 	lp->iscd.Swcap= Swcap;
 	lp->iscd.encod_type= encod_type;
 	lp->iscd.padding=0;
@@ -737,8 +751,9 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 static void
 set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i )
 {
+	int t=scsi_size(lp->iscd.sc_si);
 	lp->iscd.sc_si.header.type   = htons (TE_LINK_SUBTLV_ISCD_SCSI);
-	lp->iscd.sc_si.header.length = htons ( TE_LINK_SUBTLV_ISCD_SCSI_SIZE);
+	lp->iscd.sc_si.header.length = htons (t);
 
 	lp->iscd.sc_si.av_lab.pri_reserved=SET_PRI_RESERVED(0XFF,0);
 	lp->iscd.sc_si.av_lab.lab_set.action_numLabel=SET_NUM_LABEL_ACTION(4,88);
@@ -1251,7 +1266,6 @@ build_link_tlv (struct stream *s, struct mpls_te_link *lp)
 	build_link_subtlv (s, &lp->use_bw.header);
 	build_link_subtlv (s, &lp->srlg.header); /*mes modifs*/
 	build_link_subtlv (s, &lp->iscd.header); /*mes modifs*/
-	build_link_subtlv (s, &lp->iscd.sc_si.header); /*mes modifs*/
 
 
 
@@ -2305,13 +2319,13 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 			}*/
 
 		if (vty != NULL)
-			vty_out(vty, "  %x.", top->sc_si.av_lab.lab_set.bitmap[j]);
+			vty_out(vty, "%x.", top->sc_si.av_lab.lab_set.bitmap[j]);
 		else
-			zlog_debug ("      %x",
+			zlog_debug ("%x",
 					top->sc_si.av_lab.lab_set.bitmap[j]);
 	}
 	if (vty != NULL)
-				vty_out(vty, "  %x", top->sc_si.av_lab.lab_set.padding_bitmap);
+				vty_out(vty, "%x", top->sc_si.av_lab.lab_set.padding_bitmap);
 	return TLV_SIZE (tlvh);
 }
 /*mes modifs*/

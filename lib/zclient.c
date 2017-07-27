@@ -1206,12 +1206,12 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 	}
 	{
 		unsigned int l;
-		for (l= 0; l < bwclassnum && l < SIZE_BITMAP_TAB; l++)
+		for (l= 0; l < /*bwclassnum && l*/ SIZE_BITMAP_TAB; l++)
 			iflp->bitmap[l] = (u_int8_t)stream_getl (s);
-		if (l < bwclassnum)
+	/*	if (l < bwclassnum)
 			zlog_err ("%s: received %d > %d (SIZE_BITMAP_TAB) bitmap entries"
 					" - outdated library?",
-					__func__, bwclassnum, SIZE_BITMAP_TAB);
+					__func__, bwclassnum, SIZE_BITMAP_TAB);*/
 	}
 }
 
@@ -1319,6 +1319,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 	w += stream_putw (s,  iflp->n);
 	for (j = 0; j < MAX_CLASS_TYPE; j++)
 		w += stream_putf (s, iflp->max_lsp_bw[j]);
+
 	for (l = 0; l < SIZE_BITMAP_TAB; l++)
 		w += stream_putl (s, (u_int32_t)iflp->bitmap[l]);
 	return w;

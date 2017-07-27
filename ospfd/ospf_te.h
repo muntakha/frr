@@ -263,7 +263,6 @@ struct base_label
 
 struct label_set
 {
-	//u_int8_t action;
 	u_int16_t action_numLabel;
 	struct base_label base_lab;
 	u_int8_t bitmap[SIZE_BITMAP_TAB];//tableau de 11 octets
@@ -277,7 +276,6 @@ struct available_label
 	struct label_set lab_set;
 };
 #define TE_LINK_SUBTLV_ISCD_SCSI	1
-#define TE_LINK_SUBTLV_ISCD_SCSI_SIZE 24
 struct Sc_specific_information
 {
 	struct te_tlv_header header;
@@ -516,6 +514,7 @@ struct mpls_te_link
 };
 
 /* Prototypes. */
+int scsi_size(struct Sc_specific_information scsi);
 extern int ospf_mpls_te_init (void);
 extern void ospf_mpls_te_term (void);
 extern struct ospf_mpls_te *get_ospf_mpls_te (void);
