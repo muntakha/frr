@@ -84,7 +84,7 @@ int scsi_size(struct Sc_specific_information scsi )
 	int tmp;
 	tmp= (sizeof(scsi.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(scsi.av_lab.lab_set.action_numLabel));
 	tmp=(tmp/32)*4;
-	size=16+tmp;
+	size=16 +tmp;
 
 	return size;
 }
@@ -442,8 +442,8 @@ set_linkparams_link_header (struct mpls_te_link *lp)
 	/* TE_LINK_SUBTLV_ISCD */
 	if (ntohs (lp->iscd.header.type) != 0)
 		length += TLV_SIZE (&lp->iscd.header);
-	if (ntohs (lp->iscd.sc_si.header.type) != 0)
-		length += TLV_SIZE (&lp->iscd.sc_si.header);
+	/*if (ntohs (lp->iscd.sc_si.header.type) != 0)
+		length += TLV_SIZE (&lp->iscd.sc_si.header);*/
 
 	lp->link_header.header.type   = htons (TE_TLV_LINK);
 	lp->link_header.header.length = htons (length);
@@ -737,31 +737,23 @@ set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
 }
 
 static void
-set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority, u_int16_t grid_cs_id,int16_t n,u_int8_t bitmap, int i)
+set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
 {
 	int t=scsi_size(lp->iscd.sc_si);
 	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
+	if(t>16)
 	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE+t);
+	else
+		lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE);
 	lp->iscd.Swcap= Swcap;
 	lp->iscd.encod_type= encod_type;
 	lp->iscd.padding=0;
 	lp->iscd.max_lsp_bw[priority]= htonf (max_lsp_bw);
 
-	if(t>16)
-	{
-		lp->iscd.sc_si.av_lab.pri_reserved=SET_PRI_RESERVED(0XFF,0);
-		lp->iscd.sc_si.av_lab.lab_set.action_numLabel=SET_NUM_LABEL_ACTION(4,88);
-
-		lp->iscd.sc_si.av_lab.lab_set.base_lab.grid_cs_identifier=SET_GRID_CS_ID(1,GET_CS(grid_cs_id),0);
-		lp->iscd.sc_si.av_lab.lab_set.base_lab.n=n; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
-
-		lp->iscd.sc_si.av_lab.lab_set.bitmap[i]=bitmap;
-		lp->iscd.sc_si.av_lab.lab_set.padding_bitmap=0x00;
-	}
 	return;
 }
-/*static void
-set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i )
+static void
+set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i)
 {
 	int t=scsi_size(lp->iscd.sc_si);
 	lp->iscd.sc_si.header.type   = htons (TE_LINK_SUBTLV_ISCD_SCSI);
@@ -776,7 +768,7 @@ set_linkparams_iscd_scsi (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t 
 	lp->iscd.sc_si.av_lab.lab_set.bitmap[i]=bitmap;
 	lp->iscd.sc_si.av_lab.lab_set.padding_bitmap=0x00;
 	return;
-}*/
+}
 /*mes modifs*/
 
 /* Update TE parameters from Interface */
@@ -873,10 +865,10 @@ update_linkparams(struct mpls_te_link *lp)
 		if(IS_PARAM_SET(ifp->link_params,LP_ISCD_SCSI))
 		{
 			for (l = 0; l < SIZE_BITMAP_TAB; l++)
-				for(j=0;j<MAX_CLASS_TYPE;j++)
-					set_linkparams_iscd(lp,ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j, ifp->link_params->grid_cs_identifier, ifp->link_params->n, ifp->link_params->bitmap[l],l);
+				set_linkparams_iscd_scsi(lp, ifp->link_params->grid_cs_identifier, ifp->link_params->n, ifp->link_params->bitmap[l],l);
 		}
-
+		for (j = 0; j < MAX_CLASS_TYPE; j++)
+			set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j);
 	}
 	else
 		TLV_TYPE(lp->iscd) = 0;
@@ -1103,7 +1095,7 @@ ospf_mpls_te_update_if (struct interface *ifp)
 			if (lp->area != NULL)
 			{
 				if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-                																ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
+                												ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
 				else
 					ospf_mpls_te_lsa_schedule (lp, REORIGINATE_THIS_LSA);
 			}
@@ -1112,7 +1104,7 @@ ospf_mpls_te_update_if (struct interface *ifp)
 	{
 		/* If MPLS TE is disable on this interface, flush LSA if it is already engaged */
 		if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-        																  ospf_mpls_te_lsa_schedule (lp, FLUSH_THIS_LSA);
+        												  ospf_mpls_te_lsa_schedule (lp, FLUSH_THIS_LSA);
 		else
 			/* Reset Activity flag */
 			lp->flags = LPFLG_LSA_INACTIVE;
@@ -1188,7 +1180,7 @@ ospf_mpls_te_ism_change (struct ospf_interface *oi, int old_state)
 								ntohl (lp->link_id.value.s_addr)))
 		{
 			if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-            																ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
+            												ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
 			else
 				ospf_mpls_te_lsa_schedule (lp, REORIGINATE_THIS_LSA);
 
@@ -1199,7 +1191,7 @@ ospf_mpls_te_ism_change (struct ospf_interface *oi, int old_state)
 		lp->link_id.header.type   = htons (0);
 
 		if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-        																ospf_mpls_te_lsa_schedule (lp, FLUSH_THIS_LSA);
+        												ospf_mpls_te_lsa_schedule (lp, FLUSH_THIS_LSA);
 		break;
 	}
 
@@ -1328,10 +1320,10 @@ ospf_mpls_te_lsa_new (struct ospf_area *area, struct mpls_te_link *lp)
 	if (IS_INTER_AS (lp->type))
 	{
 		if IS_FLOOD_AS (lp->type)
-        																{
+        												{
 			options |= OSPF_OPTION_E;     /* Enable AS external as we flood Inter-AS with Opaque Type 11 */
 			lsa_type = OSPF_OPAQUE_AS_LSA;
-        																}
+        												}
 		else
 		{
 			options |= LSA_OPTIONS_GET (area);    /* Get area default option */
@@ -1462,15 +1454,15 @@ ospf_mpls_te_lsa_originate_area (void *arg)
 			continue;
 
 		if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-        																{
+        												{
 			if CHECK_FLAG (lp->flags, LPFLG_LSA_FORCED_REFRESH)
-            																{
+            												{
 				UNSET_FLAG (lp->flags, LPFLG_LSA_FORCED_REFRESH);
 				zlog_warn ("OSPF MPLS-TE (ospf_mpls_te_lsa_originate_area): Refresh instead of Originate");
 				ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
-            																}
+            												}
 			continue;
-        																}
+        												}
 		if (! is_mandated_params_set (lp))
 		{
 			zlog_warn ("ospf_mpls_te_lsa_originate_area: Link(%s) lacks some mandated MPLS-TE parameters.",
@@ -1555,14 +1547,14 @@ ospf_mpls_te_lsa_originate_as (void *arg)
 			continue;
 
 		if CHECK_FLAG (lp->flags, LPFLG_LSA_ENGAGED)
-        																{
+        												{
 			if CHECK_FLAG (lp->flags, LPFLG_LSA_FORCED_REFRESH)
-            																{
+            												{
 				UNSET_FLAG (lp->flags, LPFLG_LSA_FORCED_REFRESH);
 				ospf_mpls_te_lsa_schedule (lp, REFRESH_THIS_LSA);
-            																}
+            												}
 			continue;
-        																}
+        												}
 		if (!is_mandated_params_set (lp))
 		{
 			zlog_warn ("ospf_mpls_te_lsa_originate_as: Link(%s) lacks some mandated MPLS-TE parameters.",
