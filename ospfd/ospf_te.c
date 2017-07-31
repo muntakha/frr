@@ -81,10 +81,10 @@ enum oifstate
 int scsi_size(struct Sc_specific_information scsi )
 {
 	int size;
-	int tmp;
-	tmp= (sizeof(scsi.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(scsi.av_lab.lab_set.action_numLabel));
-	tmp=(tmp/32)*4;
-	size=16 +tmp;
+	int bitmap_size;
+	bitmap_size= (8*sizeof(scsi.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(scsi.av_lab.lab_set.action_numLabel));
+	bitmap_size=(bitmap_size/8);
+	size=16 +bitmap_size;
 
 	return size;
 }
