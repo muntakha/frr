@@ -194,15 +194,15 @@ struct if_stats
 	| ((numlab)          & SCSI_NUM_LABEL_MASK))
 
 /*getters and setters for base label of the scsi*/
-#define ISCD_SCSI_GRID_MASK	0xf000
-#define ISCD_SCSI_CS_MASK	0x0e00
+#define ISCD_SCSI_GRID_MASK	0xe000
+#define ISCD_SCSI_CS_MASK	0x0f00
 #define ISCD_SCSI_IDENTIFIER_MASK 0x01ff
 
 #define	GET_GRID(grid) \
-	(((u_int16_t)(grid) & ISCD_SCSI_GRID_MASK) >> 12)
+	(((u_int16_t)(grid) & ISCD_SCSI_GRID_MASK) >> 13)
 
 #define	GET_CS(cs) \
-	 ((((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)>>9 )& (((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)<<4))
+	 ((((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)>>9 )& (((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)<<3))
 
 #define	GET_IDENTIFIER(id) \
 	 ((u_int16_t)(id) & ISCD_SCSI_IDENTIFIER_MASK)

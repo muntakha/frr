@@ -275,7 +275,7 @@ struct available_label
 	u_int32_t  pri_reserved;
 	struct label_set lab_set;
 };
-#define TE_LINK_SUBTLV_ISCD_SCSI	1
+#define TE_LINK_SUBTLV_ISCD_scsi_grid_fixe	1
 struct Sc_specific_information
 {
 	struct te_tlv_header header;
@@ -291,7 +291,7 @@ struct te_link_subtlv_iscd
 	u_int8_t encod_type;                  /*The Encoding field*/
 	u_int16_t padding;		            /*Reserved*/
 	float max_lsp_bw[MAX_CLASS_TYPE];    /*Maximum LSP Bandwidth is encoded as a list of eight 4 octet fields*/
-	struct Sc_specific_information sc_si; /*Switching Capability specific information*/
+	struct Sc_specific_information scsi_grid_fixe; /*Switching Capability specific information*/
 };
 
 
@@ -437,7 +437,7 @@ struct te_link_subtlv
 		u_int8_t encod_type;
 		u_int16_t padding;
 		float max_lsp_bw[8];
-		struct Sc_specific_information sc_si;
+		struct Sc_specific_information scsi_grid_fixe;
 	} value;
 };
 
@@ -514,7 +514,7 @@ struct mpls_te_link
 };
 
 /* Prototypes. */
-int scsi_size(struct Sc_specific_information scsi);
+int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe);
 extern int ospf_mpls_te_init (void);
 extern void ospf_mpls_te_term (void);
 extern struct ospf_mpls_te *get_ospf_mpls_te (void);

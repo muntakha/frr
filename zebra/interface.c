@@ -2451,7 +2451,7 @@ DEFUN (no_link_params_srlg,
 
 DEFUN (link_params_iscd,
 		link_params_iscd_cmd,
-		"switching swcap (0-256) encoding (1-11)",
+		"switching cap (0-256) encoding (1-11)",
 		"Interface Switching Capability Descriptor\n"
 		"Switching Capability\n"
 		"value of switching capability\n"
@@ -2461,7 +2461,7 @@ DEFUN (link_params_iscd,
 	u_int8_t swcap;
 	u_int8_t encod_type;
 	u_int16_t padding=0;
-	int i,priority=7;
+	int i;
 	float bw;
 
 	VTY_DECLVAR_CONTEXT (interface, ifp);
@@ -2478,10 +2478,8 @@ DEFUN (link_params_iscd,
 	/* Update Max LSP Bandwidth if needed*/
 	for (i=0; i<8 ;i++)
 	{
-		if(i==priority)
-			link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
-		else
-			link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, 0);
+		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
+
 	}
 	if (if_is_operative (ifp))
 		zebra_interface_parameters_update (ifp);
@@ -2598,10 +2596,10 @@ DEFUN (link_params_iscd_scsi,
 	/* Update SCSI parameters*/
 	if (IS_PARAM_UNSET(iflp, LP_ISCD_SCSI))
 	{
-		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
-		iflp->n=n;
-		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,0);
 		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
+		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
+		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,0);
+		iflp->n=n;
 		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
 
@@ -3076,7 +3074,7 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
 		}
 		if (IS_PARAM_SET(iflp, LP_ISCD_SCSI))
 		{
-			vty_out(vty, "  N VALUE %d%s",iflp->n, VTY_NEWLINE);
+			vty_out(vty, "  n_value_base_label %d%s",iflp->n, VTY_NEWLINE);
 			for (i = 0; i < 11; i++)
 				vty_out(vty, "  block of bytes%x %u%s",
 						i, iflp->bitmap[i], VTY_NEWLINE);
