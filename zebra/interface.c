@@ -2488,8 +2488,8 @@ DEFUN (link_params_iscd,
 }
 
 
-DEFUN (link_params_iscd1,
-		link_params_iscd1_cmd,
+DEFUN (link_params_iscd_max_lsp,
+		link_params_iscd_max_lsp_cmd,
 		"max_lsp_bw BANDWIDTH priority (0-7) ",
 		"Maximum LSP Bandwidth at each priority level\n"
 		"Bytes/second (IEEE floating point format)\n"
@@ -2551,8 +2551,8 @@ DEFUN (no_link_params_iscd,
 }
 
 
-DEFUN (link_params_iscd_scsi,
-		link_params_iscd_scsi_cmd,
+DEFUN (link_params_iscd_scsi_fixed_grid,
+		link_params_iscd_scsi_fixed_grid_cmd,
 		"grid FIXED_GRID",
 		"Selection of the spectrum representation\n"
 		"Fixed grids at 100 GHz or 50 GHz\n")
@@ -2562,7 +2562,7 @@ DEFUN (link_params_iscd_scsi,
 	u_int8_t pri=0xFF;
 	u_int8_t cs;
 	u_int8_t grid=1;
-	int16_t n=-14; //{30,.....,-14}
+	int16_t n=14; //{30,.....,-14}
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	u_int8_t action=4;
 	u_int16_t numLabel=88;
@@ -2616,8 +2616,8 @@ DEFUN (link_params_iscd_scsi,
 	return CMD_SUCCESS;
 }
 
-DEFUN (no_link_params_iscd_scsi,
-		no_link_params_iscd_scsi_cmd,
+DEFUN (no_link_params_iscd_scsi_fixed_grid,
+		no_link_params_iscd_scsi_fixed_grid_cmd,
 		"no fixed_grid",
 		NO_STR
 		"Disable fixed grid on this interface\n")
@@ -3237,8 +3237,8 @@ zebra_if_init (void)
 	install_element(LINK_PARAMS_NODE, &link_params_srlg_cmd);
 	install_element(LINK_PARAMS_NODE, &no_link_params_srlg_cmd);
 	install_element(LINK_PARAMS_NODE, &link_params_iscd_cmd);
-	install_element(LINK_PARAMS_NODE, &link_params_iscd1_cmd);
+	install_element(LINK_PARAMS_NODE, &link_params_iscd_max_lsp_cmd);
 	install_element(LINK_PARAMS_NODE, &no_link_params_iscd_cmd);
-	install_element(LINK_PARAMS_NODE, &link_params_iscd_scsi_cmd);
-	install_element(LINK_PARAMS_NODE, &no_link_params_iscd_scsi_cmd);
+	install_element(LINK_PARAMS_NODE, &link_params_iscd_scsi_fixed_grid_cmd);
+	install_element(LINK_PARAMS_NODE, &no_link_params_iscd_scsi_fixed_grid_cmd);
 }
