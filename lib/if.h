@@ -208,8 +208,8 @@ struct if_stats
 	 ((u_int16_t)(id) & ISCD_SCSI_IDENTIFIER_MASK)
 
 #define	SET_GRID_CS_ID(grid, cs, identifier) \
-	( (((grid) << 12) & ISCD_SCSI_GRID_MASK) \
-	| ((((cs) <<9)         & ISCD_SCSI_CS_MASK) & ((((cs)>>4)          & ISCD_SCSI_CS_MASK)) )\
+	( (((grid) << 13) & ISCD_SCSI_GRID_MASK) \
+	| ((((cs)<<3)>>9)         & ISCD_SCSI_CS_MASK)\
 	| ((identifier)          & ISCD_SCSI_IDENTIFIER_MASK))
 
 /*getters and setters for available label of the scsi*/
