@@ -257,6 +257,7 @@ struct te_link_subtlv_llri
 /* RFC4203: Interface Switching Capability Descriptor*/
 struct base_label
 {
+	struct te_tlv_header	header;
 	u_int16_t grid_cs_identifier;
 	int16_t n;
 };

@@ -755,9 +755,13 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 static void
 set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i)
 {
+	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.header.length=htons(TE_LINK_SUBTLV_DEF_SIZE);
+	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.header.type=htons(14);
 	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.length = htons (t);
+
+
 
 	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=(SET_PRI_RESERVED(0XFF,0));
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=(SET_NUM_LABEL_ACTION(4,88));
