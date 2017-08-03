@@ -82,7 +82,7 @@ int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe )
 {
 	int scsi_grid_fixe_size;
 	int bitmap_size;
-	bitmap_size= (8*sizeof(scsi_grid_fixe.av_lab.lab_set.padding_bitmap)+ ntohs(GET_SCSI_NUM_LABEL(scsi_grid_fixe.av_lab.lab_set.action_numLabel)));
+	bitmap_size= (8*sizeof(scsi_grid_fixe.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(ntohs(scsi_grid_fixe.av_lab.lab_set.action_numLabel)));
 	bitmap_size=(bitmap_size/8);
 	scsi_grid_fixe_size=16 + bitmap_size;
 
@@ -755,18 +755,17 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 static void
 set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_id,int16_t n, u_int8_t bitmap, int i)
 {
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.header.length=htons(TE_LINK_SUBTLV_DEF_SIZE);
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.header.type=htons(14);
+
 	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.length = htons (t);
 
 
 
-	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=htons((SET_PRI_RESERVED(0XFF,0)));
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons((SET_NUM_LABEL_ACTION(4,88)));
+	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=((SET_PRI_RESERVED(htons(0XFF),htons(0))));
+	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=((SET_NUM_LABEL_ACTION(htons(4),htons(88))));
 
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=htons((SET_GRID_CS_ID(1,GET_CS(grid_cs_id),0)));
+	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=((SET_GRID_CS_ID(htons(1),GET_CS(htons(grid_cs_id)),htons(0))));
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.n=htons(n); //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.bitmap[i]=bitmap;
