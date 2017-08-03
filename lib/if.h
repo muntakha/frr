@@ -202,14 +202,14 @@ struct if_stats
 	(((u_int16_t)(grid) & ISCD_SCSI_GRID_MASK) >> 13)
 
 #define	GET_CS(cs) \
-		((((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)<<3)>>9)
+		(((u_int16_t)(cs) & ISCD_SCSI_CS_MASK)>>9)
 
 #define	GET_IDENTIFIER(id) \
 	 ((u_int16_t)(id) & ISCD_SCSI_IDENTIFIER_MASK)
 
 #define	SET_GRID_CS_ID(grid, cs, identifier) \
 	( (((grid) << 13) & ISCD_SCSI_GRID_MASK) \
-	| ((((cs)>>3)<<9)         & ISCD_SCSI_CS_MASK)\
+	| (((cs)<<9)         & ISCD_SCSI_CS_MASK)\
 	| ((identifier)          & ISCD_SCSI_IDENTIFIER_MASK))
 
 /*getters and setters for available label of the scsi*/
