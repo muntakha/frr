@@ -763,8 +763,8 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_i
 	lp->iscd.scsi_grid_fixe.header.length = htons (t);
 
 
-	tmp_priority=SET_PRI_RESERVED(0XFF,0);
-	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=htons(tmp_priority);
+	tmp_priority=SET_PRI_RESERVED(0xFF,0);
+	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=htonl(tmp_priority);
 	tmp_action_numlabel=SET_NUM_LABEL_ACTION(4,88);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
 	tmp_grid_sc_id=SET_GRID_CS_ID(1,GET_CS(grid_cs_id),0);

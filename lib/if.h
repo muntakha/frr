@@ -195,7 +195,7 @@ struct if_stats
 
 /*getters and setters for base label of the scsi*/
 #define ISCD_SCSI_GRID_MASK	0xe000
-#define ISCD_SCSI_CS_MASK	0x0f00
+#define ISCD_SCSI_CS_MASK	0x1e00
 #define ISCD_SCSI_IDENTIFIER_MASK 0x01ff
 
 #define	GET_GRID(grid) \
