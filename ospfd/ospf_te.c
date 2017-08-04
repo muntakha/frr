@@ -77,17 +77,27 @@ enum oifstate
 };
 
 
+/*length in bytes of the entire Label Set Field*/
+int Label_Set_size(struct Sc_specific_information scsi_grid_fixe )
+{
+	int Label_Set_size;
+	int bitmap_size;
+	bitmap_size= (8*sizeof(scsi_grid_fixe.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(ntohs(scsi_grid_fixe.av_lab.lab_set.action_numLabel)));
+	bitmap_size=(bitmap_size/8);//bitmap size in bytes
+	Label_Set_size=8 + bitmap_size;
+
+	return Label_Set_size;
+}
+
 /*size of scsi_grid_fixe calculation */
 int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe )
 {
-	int scsi_grid_fixe_size;
-	int bitmap_size;
-	bitmap_size= (8*sizeof(scsi_grid_fixe.av_lab.lab_set.padding_bitmap)+ GET_SCSI_NUM_LABEL(ntohs(scsi_grid_fixe.av_lab.lab_set.action_numLabel)));
-	bitmap_size=(bitmap_size/8);
-	scsi_grid_fixe_size=16 + bitmap_size;
 
-	return scsi_grid_fixe_size;
+	return (8+Label_Set_size(scsi_grid_fixe));
+
 }
+
+
 
 /*------------------------------------------------------------------------*
  * Followings are initialize/terminate functions for MPLS-TE handling.
@@ -758,6 +768,8 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_i
 	u_int32_t tmp_priority;
 	u_int16_t tmp_action_numlabel;
 	u_int16_t tmp_grid_sc_id;
+	u_int8_t cs=GET_CS(grid_cs_id);
+	u_int16_t size_label_set=Label_Set_size(lp->iscd.scsi_grid_fixe);
 	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.length = htons (t);
@@ -767,7 +779,8 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_i
 	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=htonl(tmp_priority);
 	tmp_action_numlabel=SET_NUM_LABEL_ACTION(4,88);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
-	tmp_grid_sc_id=SET_GRID_CS_ID(1,GET_CS(grid_cs_id),0);
+	lp->iscd.scsi_grid_fixe.av_lab.lab_set.lengh=htons(size_label_set);
+	tmp_grid_sc_id=SET_GRID_CS_ID(1,cs,0);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=htons(tmp_grid_sc_id);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.n=htons(n); //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 

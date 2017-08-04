@@ -264,6 +264,7 @@ struct base_label
 struct label_set
 {
 	u_int16_t action_numLabel;
+	u_int16_t lengh;
 	struct base_label base_lab;
 	u_int8_t bitmap[SIZE_BITMAP_TAB];//tableau de 11 octets
 	u_int8_t padding_bitmap;
@@ -515,6 +516,7 @@ struct mpls_te_link
 
 /* Prototypes. */
 int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe);
+int Label_Set_size(struct Sc_specific_information scsi_grid_fixe );
 extern int ospf_mpls_te_init (void);
 extern void ospf_mpls_te_term (void);
 extern struct ospf_mpls_te *get_ospf_mpls_te (void);

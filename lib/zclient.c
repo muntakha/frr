@@ -1206,7 +1206,7 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 	}
 	{
 		unsigned int l;
-		for (l= 0; l < /*bwclassnum && l*/ SIZE_BITMAP_TAB; l++)
+		for (l= 0; l < SIZE_BITMAP_TAB; l++)
 			iflp->bitmap[l] = (u_int8_t)stream_getl (s);
 	}
 }
