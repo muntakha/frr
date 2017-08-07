@@ -2598,7 +2598,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	{
 		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
-		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,0);
+		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);
 		iflp->n=n;
 		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
