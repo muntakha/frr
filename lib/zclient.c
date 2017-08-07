@@ -1313,7 +1313,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 	w += stream_putl (s, (u_int32_t) iflp->action_numLabel);
 	w += stream_putl (s, (u_int32_t) iflp->grid_cs_identifier);
 	/*w += stream_putw (s,  iflp->n);*/
-	stream_put (s,  &iflp->n,16);
+
 	for (j = 0; j < MAX_CLASS_TYPE; j++)
 		w += stream_putf (s, iflp->max_lsp_bw[j]);
 
