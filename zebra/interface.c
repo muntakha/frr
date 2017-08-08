@@ -2562,7 +2562,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	u_int8_t pri=0xFF;
 	u_int8_t cs;
 	u_int8_t grid=1;
-	int16_t n=14; //{30,.....,-14}
+	int16_t n=-14; //{30,.....,-14}
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	u_int8_t action=4;
 	u_int16_t numLabel=88;
