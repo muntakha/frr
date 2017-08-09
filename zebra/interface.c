@@ -2560,9 +2560,9 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	int i,j,idx_number =1;
 	char grid_fixe[12], grid_fixe1[19];
 	u_int8_t pri=0xFF;
-	u_int8_t cs;
+	u_int8_t cs=0;
 	u_int8_t grid=1;
-	int16_t n=-14; //{30,.....,-14}
+	u_int16_t n=14; //{30,.....,-14}
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	u_int8_t action=4;
 	u_int16_t numLabel=88;

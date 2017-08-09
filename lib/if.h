@@ -251,7 +251,7 @@ struct if_link_params {
 	u_int16_t padding;     /*reserved*/
 	float max_lsp_bw[MAX_CLASS_TYPE];  /*Maximum LSP Bandwidth*/
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
-	int16_t n;
+	u_int16_t n;
 	u_int16_t grid_cs_identifier;
 	u_int16_t action_numLabel;
 	u_int8_t padding_bitmap;
