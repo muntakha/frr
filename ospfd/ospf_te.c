@@ -763,12 +763,12 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 	return;
 }
 static void
-set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_id, u_int16_t n, u_int8_t bitmap, int i)
+set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_id, int16_t n, u_int8_t bitmap, int i)
 {
 	u_int32_t tmp_priority;
 	u_int16_t tmp_action_numlabel;
 	u_int16_t tmp_grid_sc_id;
-	u_int8_t cs=GET_CS(grid_cs_id);
+	u_int8_t cs=GET_CS(ntohs(grid_cs_id));
 	u_int16_t size_label_set=Label_Set_size(lp->iscd.scsi_grid_fixe);
 	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
 	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
@@ -2280,18 +2280,18 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 	}
 	if (vty != NULL)
 	{
-		vty_out (vty, "  n_value of base label: %d%s",
+		vty_out (vty, "  n_value of base label: %hi%s",
 				(top->scsi_grid_fixe.av_lab.lab_set.base_lab.n), VTY_NEWLINE);
 	}
 	else
 	{
 
-		zlog_debug ("    n_value of base label: %d",
+		zlog_debug ("    n_value of base label: %hi",
 				(top->scsi_grid_fixe.av_lab.lab_set.base_lab.n));
 	}
 	if (vty != NULL)
 	{
-		vty_out (vty, "  Action: %d%s",
+		vty_out (vty, "  action: %d%s",
 				(GET_SCSI_ACTION(ntohs(top->scsi_grid_fixe.av_lab.lab_set.action_numLabel))), VTY_NEWLINE);
 	}
 	else

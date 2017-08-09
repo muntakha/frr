@@ -258,7 +258,7 @@ struct te_link_subtlv_llri
 struct base_label
 {
 	u_int16_t grid_cs_identifier;
-	u_int16_t n;
+	int16_t n;
 };
 
 struct label_set
