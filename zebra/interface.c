@@ -1169,6 +1169,12 @@ if_dump_vty (struct vty *vty, struct interface *ifp)
 						i, iflp->max_lsp_bw[i], i+1, iflp->max_lsp_bw[i+1], VTY_NEWLINE);
 			vty_out(vty, "    Switching Capability %u%s",iflp->Swcap, VTY_NEWLINE);
 			vty_out(vty, "    Encoding Type %u%s",iflp->encod_type, VTY_NEWLINE);
+			if (IS_PARAM_SET(iflp, LP_ISCD_SCSI)){
+				vty_out(vty, "    n_value of base label %hi%s",iflp->n, VTY_NEWLINE);
+				for (i = 0; i < SIZE_BITMAP_TAB; i++)
+				vty_out(vty, "     %u.",iflp->bitmap[i]);
+				vty_out(vty, "     %u%s",iflp->padding_bitmap, VTY_NEWLINE);
+			}
 		}
 	}
 
@@ -2598,8 +2604,11 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	{
 		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
-		iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);
+		/*iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);*/
 		iflp->n=n;
+		iflp->grid=grid;
+		iflp->cs=cs;
+		iflp->identifier=9;
 		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
 
