@@ -2562,7 +2562,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	u_int8_t pri=0xFF;
 	u_int8_t cs=0;
 	u_int8_t grid=1;
-	int16_t n=14; //{30,.....,-14}
+	int16_t n=-14; //{30,.....,-14}
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
 	u_int8_t action=4;
 	u_int16_t numLabel=88;
@@ -3074,7 +3074,7 @@ link_params_config_write (struct vty *vty, struct interface *ifp)
 		}
 		if (IS_PARAM_SET(iflp, LP_ISCD_SCSI))
 		{
-			vty_out(vty, "  n_value_base_label %d%s",iflp->n, VTY_NEWLINE);
+			vty_out(vty, "  n_value_base_label %hi%s",iflp->n, VTY_NEWLINE);
 			for (i = 0; i < 11; i++)
 				vty_out(vty, "  block of bytes%x %u%s",
 						i, iflp->bitmap[i], VTY_NEWLINE);

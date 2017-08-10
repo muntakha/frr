@@ -749,10 +749,10 @@ set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
 static void
 set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
 {
-	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
+	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
 	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
-	if(t>16)
-	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE+t);
+	if(size_scsi>16)
+	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE+size_scsi);
 	else
 		lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE);
 	lp->iscd.Swcap= Swcap;
@@ -768,11 +768,14 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_i
 	u_int32_t tmp_priority;
 	u_int16_t tmp_action_numlabel;
 	u_int16_t tmp_grid_sc_id;
-	u_int8_t cs=GET_CS(ntohs(grid_cs_id));
+	u_int16_t grid=GET_GRID(ntohs(grid_cs_id));
+	u_int16_t cs=GET_CS(ntohs(grid_cs_id));
+	u_int16_t id=GET_IDENTIFIER(ntohs(grid_cs_id));
 	u_int16_t size_label_set=Label_Set_size(lp->iscd.scsi_grid_fixe);
-	int t=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
+	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
+
 	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
-	lp->iscd.scsi_grid_fixe.header.length = htons (t);
+	lp->iscd.scsi_grid_fixe.header.length = htons (size_scsi);
 
 
 	tmp_priority=SET_PRI_RESERVED(0xFF,0);
@@ -780,7 +783,7 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t grid_cs_i
 	tmp_action_numlabel=SET_NUM_LABEL_ACTION(4,88);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.lengh=htons(size_label_set);
-	tmp_grid_sc_id=SET_GRID_CS_ID(1,cs,9);
+	tmp_grid_sc_id=SET_GRID_CS_ID(grid,cs,id);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=htons(tmp_grid_sc_id);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.n=n; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 

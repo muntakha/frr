@@ -1192,7 +1192,7 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 	iflp->srlg = stream_getl (s); /*mes modifs*/
 	iflp->Swcap=(u_int8_t) stream_getl (s);
 	iflp->encod_type=(u_int8_t) stream_getl (s);
-	iflp->n=stream_getw (s);
+	iflp->n=(int16_t)stream_getl (s);
 	iflp->action_numLabel=(u_int16_t)stream_getl (s);
 	iflp->grid_cs_identifier=(u_int16_t)stream_getl (s);
 	{
@@ -1312,7 +1312,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 	w += stream_putl (s, (u_int32_t) iflp->encod_type);
 	w += stream_putl (s, (u_int32_t) iflp->action_numLabel);
 	w += stream_putl (s, (u_int32_t) iflp->grid_cs_identifier);
-	w += stream_putw (s, iflp->n);
+	w += stream_putl (s, (u_int32_t) iflp->n);
 
 	for (j = 0; j < MAX_CLASS_TYPE; j++)
 		w += stream_putf (s, iflp->max_lsp_bw[j]);
