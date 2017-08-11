@@ -763,7 +763,7 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 	return;
 }
 static void
-set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int16_t cs, int16_t n, u_int8_t bitmap, int i)
+set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int8_t cs, int16_t n, u_int8_t bitmap, int i)
 {
 	u_int32_t tmp_priority;
 	u_int16_t tmp_action_numlabel;

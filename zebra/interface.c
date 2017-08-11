@@ -1738,6 +1738,23 @@ link_param_cmd_set_uint8 (struct interface *ifp, uint8_t *field,
 }
 
 static void
+link_param_cmd_set_int16 (struct interface *ifp, int16_t *field,
+		uint32_t type, int16_t value)
+{
+	/* Update field as needed */
+	if (IS_PARAM_UNSET(ifp->link_params, type) || *field != value)
+	{
+		*field = value;
+		SET_PARAM(ifp->link_params, type);
+
+		/* force protocols to update LINK STATE due to parameters change */
+		if (if_is_operative (ifp))
+			zebra_interface_parameters_update (ifp);
+	}
+}
+
+
+static void
 link_param_cmd_set_float (struct interface *ifp, float *field,
 		uint32_t type, float value)
 {
@@ -2566,7 +2583,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	int i,j,idx_number =1;
 	char grid_fixe[12], grid_fixe1[19];
 	u_int8_t pri=0xFF;
-	u_int16_t cs=0;
+	u_int8_t cs=0;
 	u_int16_t grid=1;
 	int16_t n=-14; //{30,.....,-14}
 	u_int8_t bitmap[SIZE_BITMAP_TAB];
@@ -2605,15 +2622,14 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 		iflp->pri_reserved=SET_PRI_RESERVED(pri,0);
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
 		/*iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);*/
-		iflp->n=n;
 		iflp->grid=grid;
-		iflp->cs=cs;
 		iflp->identifier=9;
 		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
 
-
+	link_param_cmd_set_int16(ifp,&iflp->n,LP_ISCD_SCSI,n);
 	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
+	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD_SCSI, cs);
 	for(j=0; j<SIZE_BITMAP_TAB; j++)
 		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);
 
