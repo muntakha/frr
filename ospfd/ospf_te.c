@@ -781,7 +781,7 @@ set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int8_t cs, int16_
 	tmp_action_numlabel=SET_NUM_LABEL_ACTION(4,88);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.lengh=htons(size_label_set);
-	tmp_grid_sc_id=SET_GRID_CS_ID(1,2,9);
+	tmp_grid_sc_id=SET_GRID_CS_ID(1,cs,9);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=htons(tmp_grid_sc_id);
 	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.n=-14; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 
