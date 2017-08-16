@@ -2630,6 +2630,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 	link_param_cmd_set_int16(ifp,&iflp->n,LP_ISCD_SCSI,n);
 	link_param_cmd_set_uint8 (ifp, &iflp->padding_bitmap, LP_ISCD_SCSI,0);
 	link_param_cmd_set_uint8 (ifp, &iflp->cs, LP_ISCD_SCSI, cs);
+
 	for(j=0; j<SIZE_BITMAP_TAB; j++)
 		link_param_cmd_set_uint8 (ifp, &iflp->bitmap[j], LP_ISCD_SCSI, bitmap[j]);
 
