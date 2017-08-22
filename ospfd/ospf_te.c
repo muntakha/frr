@@ -2315,7 +2315,7 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 
 		for(int k=0;k<SIZE_BITMAP_TAB_FLEXI;k++)
 		{
-			vty_out (vty, "  Bitmap for the flexi-grid: %x.",
+			vty_out (vty, "%x.",
 									top->scsi.bitmap_flexi[k]);
 		}
 		vty_out(vty, "%x%s", top->scsi.padding_bitmap_flexi, VTY_NEWLINE);

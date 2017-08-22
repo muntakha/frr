@@ -145,7 +145,7 @@ struct if_stats
 #define DEFAULT_BANDWIDTH       10000
 #define MAX_CLASS_TYPE          8
 #define SIZE_BITMAP_TAB         11
-#define SIZE_BITMAP_TAB_FLEXI   6
+#define SIZE_BITMAP_TAB_FLEXI   88
 
 #define MAX_PKT_LOSS            50.331642
 
