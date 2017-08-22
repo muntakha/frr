@@ -2504,7 +2504,7 @@ DEFUN (link_params_iscd,
 		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
 
 	}
-	if(swcap==150)
+	if(swcap==152)
 	{
 		if (IS_PARAM_UNSET(iflp, LP_ISCD_SCSI))
 			{
