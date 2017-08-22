@@ -145,6 +145,8 @@ struct if_stats
 #define DEFAULT_BANDWIDTH       10000
 #define MAX_CLASS_TYPE          8
 #define SIZE_BITMAP_TAB         11
+#define SIZE_BITMAP_TAB_FLEXI   6
+
 #define MAX_PKT_LOSS            50.331642
 
 /*
@@ -226,6 +228,27 @@ struct if_stats
 	((((pri) << 24) & ISCD_SCSI_PRI_MASK) \
 	| ((rsv)          & ISCD_SCSI_RESERVED_MASK))
 
+/*getters and setters for flexi-grid*/
+#define ISCD_SCSI_CS_FLEXI_MASK	0xf0000000
+#define ISCD_SCSI_N_START_MASK	0x0ffff000
+#define ISCD_SCSI_NUMB_OF_EFF_BITS_MASK 0x00000fff
+
+#define	GET_CS_FLEXI(cs) \
+	(((int)(cs) & ISCD_SCSI_CS_MASK) >> 28)
+
+#define	GET_N_START(n_start) \
+		(((int)(n_start) & ISCD_SCSI_N_START_MASK)>>12)
+
+#define	GET_SCSI_NUMB_OF_EFF_BITS(nb_of_eff_bits) \
+	 ((u_int16_t)(nb_of_eff_bits) & ISCD_SCSI_NUMB_OF_EFF_BITS_MASK)
+
+#define	SET_CS_N_Start_NUMB_OF_EFF_BITS(cs, n_start, nb_of_eff_bits) \
+	( (((cs) << 28) & ISCD_SCSI_CS_FLEXI_MASK) \
+	| (((n_start)<<12)         & ISCD_SCSI_N_START_MASK) \
+	| ((nb_of_eff_bits)          & ISCD_SCSI_NUMB_OF_EFF_BITS_MASK))
+
+
+
 /* Link Parameters for Traffic Engineering */
 struct if_link_params {
 	u_int32_t lp_status;   /* Status of Link Parameters: */
@@ -258,7 +281,11 @@ struct if_link_params {
 	u_int16_t grid_cs_identifier;
 	u_int16_t action_numLabel;
 	u_int8_t padding_bitmap;
-	u_int32_t  pri_reserved;
+	u_int32_t pri_reserved;
+	u_int16_t Max_slot[MAX_CLASS_TYPE];
+	int cs_starting_n_numb_bits;
+	u_int8_t bitmap_flexi[SIZE_BITMAP_TAB_FLEXI];
+	u_int8_t padding_bitmap_flexi;
 };
 
 #define INTERFACE_LINK_PARAMS_SIZE   sizeof(struct if_link_params)

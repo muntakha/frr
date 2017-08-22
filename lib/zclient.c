@@ -1193,9 +1193,11 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 	iflp->Swcap=(u_int8_t) stream_getl (s);
 	iflp->encod_type=(u_int8_t) stream_getl (s);
 	iflp->cs=(u_int8_t)stream_getl (s);
-	iflp->n=(int16_t)stream_getf (s);
+	iflp->n=(int16_t)stream_getl (s);
 	iflp->action_numLabel=(u_int16_t)stream_getl (s);
 	iflp->grid_cs_identifier=(u_int16_t)stream_getl (s);
+	iflp->cs_starting_n_numb_bits=stream_getl (s);
+
 	{
 		unsigned int j;
 		for (j= 0; j < bwclassnum && j < MAX_CLASS_TYPE; j++)
@@ -1210,6 +1212,12 @@ link_params_set_value(struct stream *s, struct if_link_params *iflp)
 		for (l= 0; l < SIZE_BITMAP_TAB; l++)
 			iflp->bitmap[l] = (u_int8_t)stream_getl (s);
 	}
+
+	{
+			unsigned int k;
+			for (k= 0; k < SIZE_BITMAP_TAB_FLEXI; k++)
+				iflp->bitmap_flexi[k] = (u_int8_t)stream_getl (s);
+		}
 }
 
 struct interface *
@@ -1277,7 +1285,7 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 {
 	size_t w;
 	struct if_link_params *iflp;
-	int i,j,l;
+	int i,j,l,k;
 
 	if (s == NULL || ifp == NULL || ifp->link_params == NULL)
 		return 0;
@@ -1314,13 +1322,17 @@ zebra_interface_link_params_write (struct stream *s, struct interface *ifp)
 	w += stream_putl (s, (u_int32_t) iflp->action_numLabel);
 	w += stream_putl (s, (u_int32_t) iflp->cs);
 	w += stream_putl (s, (u_int32_t) iflp->grid_cs_identifier);
-	w += stream_putf (s, (float) iflp->n);
+	w += stream_putl (s, (u_int32_t) iflp->n);
+	w += stream_putl (s, iflp->cs_starting_n_numb_bits);
 
 	for (j = 0; j < MAX_CLASS_TYPE; j++)
 		w += stream_putf (s, iflp->max_lsp_bw[j]);
 
 	for (l = 0; l < SIZE_BITMAP_TAB; l++)
 		w += stream_putl (s, (u_int32_t)iflp->bitmap[l]);
+
+	for (k = 0;  k< SIZE_BITMAP_TAB_FLEXI; k++)
+			w += stream_putl (s, (u_int32_t)iflp->bitmap_flexi[k]);
 	return w;
 }
 

@@ -97,6 +97,13 @@ int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe )
 
 }
 
+/*size of scsi_flexi_grid calculation */
+int scsi_flexi_grid_size(struct Sc_specific_information scsi_flexi_grid )
+{
+	int bitmap_size= (8*sizeof(scsi_flexi_grid.padding_bitmap_flexi) + GET_SCSI_NUMB_OF_EFF_BITS(ntohs(scsi_flexi_grid.cs_starting_n_numb_bits)));
+	return (12 + bitmap_size);
+
+}
 
 
 /*------------------------------------------------------------------------*
@@ -749,7 +756,7 @@ set_linkparams_srlg (struct mpls_te_link *lp, u_int32_t srlg)
 static void
 set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_type, float max_lsp_bw, int priority)
 {
-	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
+	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi);
 	lp->iscd.header.type   = htons (TE_LINK_SUBTLV_ISCD);
 	if(size_scsi>16)
 	lp->iscd.header.length = htons (TE_LINK_SUBTLV_ISCD_SIZE+size_scsi);
@@ -763,30 +770,55 @@ set_linkparams_iscd (struct mpls_te_link *lp, u_int8_t Swcap, u_int8_t encod_typ
 	return;
 }
 static void
-set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int8_t cs, int16_t n, u_int8_t bitmap, int i)
+set_linkparams_iscd_scsi_grid_fixe (struct mpls_te_link *lp, u_int8_t cs, int n, u_int8_t bitmap, int i)
 {
 	u_int32_t tmp_priority;
 	u_int16_t tmp_action_numlabel;
 	u_int16_t tmp_grid_sc_id;
+	int  tmp_n_value;
+	u_int16_t size_label_set=Label_Set_size(lp->iscd.scsi);
+	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi);
 
-	u_int16_t size_label_set=Label_Set_size(lp->iscd.scsi_grid_fixe);
-	int size_scsi=scsi_grid_fixe_size(lp->iscd.scsi_grid_fixe);
-
-	lp->iscd.scsi_grid_fixe.header.type   = htons (TE_LINK_SUBTLV_ISCD_scsi_grid_fixe);
-	lp->iscd.scsi_grid_fixe.header.length = htons (size_scsi);
+	lp->iscd.scsi.header.type   = htons (TE_LINK_SUBTLV_ISCD);
+	lp->iscd.scsi.header.length = htons (size_scsi);
 
 
 	tmp_priority=SET_PRI_RESERVED(0xFF,0);
-	lp->iscd.scsi_grid_fixe.av_lab.pri_reserved=htonl(tmp_priority);
+	lp->iscd.scsi.av_lab.pri_reserved=htonl(tmp_priority);
 	tmp_action_numlabel=SET_NUM_LABEL_ACTION(4,88);
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.lengh=htons(size_label_set);
+	lp->iscd.scsi.av_lab.lab_set.action_numLabel=htons(tmp_action_numlabel);
+	lp->iscd.scsi.av_lab.lab_set.lengh=htons(size_label_set);
 	tmp_grid_sc_id=SET_GRID_CS_ID(1,cs,9);
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier=htons(tmp_grid_sc_id);
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.base_lab.n=n; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
+	lp->iscd.scsi.av_lab.lab_set.base_lab.grid_cs_identifier=htons(tmp_grid_sc_id);
+	tmp_n_value=(n&(0x00ff));
+	lp->iscd.scsi.av_lab.lab_set.base_lab.n=tmp_n_value; //Frequency (THz) = 193.1 THz + n * channel spacing (THz)
 
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.bitmap[i]=bitmap;
-	lp->iscd.scsi_grid_fixe.av_lab.lab_set.padding_bitmap=0x00;
+	lp->iscd.scsi.av_lab.lab_set.bitmap[i]=bitmap;
+	lp->iscd.scsi.av_lab.lab_set.padding_bitmap=0x00;
+	return;
+}
+
+static void
+set_linkparams_iscd_scsi_flexi_grid (struct mpls_te_link *lp, u_int8_t bitmap, int i)
+{
+	u_int32_t tmp_priority;
+	u_int16_t tmp_action_numb_of_eff_bits;
+	long int cs=5;
+	long int n_start=-224;
+	long int nb_of_eff=705;
+	int size_scsi=scsi_flexi_grid_size(lp->iscd.scsi);
+
+	lp->iscd.scsi.header.type   = htons (TE_LINK_SUBTLV_ISCD_SCSI);
+	lp->iscd.scsi.header.length = htons (size_scsi);
+
+
+	tmp_priority=SET_PRI_RESERVED(0xFF,0);
+	lp->iscd.scsi.pri_reserved=htonl(tmp_priority);
+	tmp_action_numb_of_eff_bits=SET_CS_N_Start_NUMB_OF_EFF_BITS(cs,n_start,nb_of_eff); /*starting n=-14*16 and numb of eff bits =16*30-(-14*16)*/
+	lp->iscd.scsi.cs_starting_n_numb_bits=htons(tmp_action_numb_of_eff_bits);
+	lp->iscd.scsi.bitmap_flexi[i]=bitmap;
+	lp->iscd.scsi.padding_bitmap_flexi=0x00;
+
 	return;
 }
 /*mes modifs*/
@@ -889,6 +921,11 @@ update_linkparams(struct mpls_te_link *lp)
 		}
 		for (j = 0; j < MAX_CLASS_TYPE; j++)
 			set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j);
+		if(ifp->link_params->Swcap==150)
+		{
+			for (j = 0; j < SIZE_BITMAP_TAB_FLEXI; j++)
+				set_linkparams_iscd_scsi_flexi_grid(lp,ifp->link_params->bitmap_flexi[j], j);
+		}
 	}
 	else
 		TLV_TYPE(lp->iscd) = 0;
@@ -2269,6 +2306,19 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 				(top->Swcap), VTY_NEWLINE);
 		vty_out (vty, "  Encoding Type: %u%s",
 				(top->encod_type), VTY_NEWLINE);
+		vty_out (vty, "  CS for Flexi grid: %d%s",
+						(GET_CS_FLEXI(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+		vty_out (vty, "  Starting n value: %d%s",
+								(GET_N_START(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+		vty_out (vty, "  Number of effective bits: %d%s",
+								(GET_SCSI_NUMB_OF_EFF_BITS(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+
+		for(int k=0;k<SIZE_BITMAP_TAB_FLEXI;k++)
+		{
+			vty_out (vty, "  Bitmap for the flexi-grid: %x.",
+									top->scsi.bitmap_flexi[k]);
+		}
+		vty_out(vty, "%x%s", top->scsi.padding_bitmap_flexi, VTY_NEWLINE);
 	}
 
 	else
@@ -2282,57 +2332,57 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 	if (vty != NULL)
 	{
 		vty_out (vty, "  n_value of base label: %hi%s",
-				(top->scsi_grid_fixe.av_lab.lab_set.base_lab.n), VTY_NEWLINE);
+				(top->scsi.av_lab.lab_set.base_lab.n), VTY_NEWLINE);
 	}
 	else
 	{
 
 		zlog_debug ("    n_value of base label: %hi",
-				(top->scsi_grid_fixe.av_lab.lab_set.base_lab.n));
+				(top->scsi.av_lab.lab_set.base_lab.n));
 	}
 	if (vty != NULL)
 	{
 		vty_out (vty, "  action: %d%s",
-				(GET_SCSI_ACTION(ntohs(top->scsi_grid_fixe.av_lab.lab_set.action_numLabel))), VTY_NEWLINE);
+				(GET_SCSI_ACTION(ntohs(top->scsi.av_lab.lab_set.action_numLabel))), VTY_NEWLINE);
 	}
 	else
 	{
 
 		zlog_debug ("    action: %d",
-				GET_SCSI_ACTION(ntohs(top->scsi_grid_fixe.av_lab.lab_set.action_numLabel)));
+				GET_SCSI_ACTION(ntohs(top->scsi.av_lab.lab_set.action_numLabel)));
 	}
 	if (vty != NULL)
 	{
 		vty_out (vty, "  grid: %d%s",
-				(GET_GRID(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
+				(GET_GRID(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
 	}
 	else
 	{
 
 		zlog_debug ("    grid: %d",
-				GET_GRID(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier)));
+				GET_GRID(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier)));
 	}
 	if (vty != NULL)
 	{
 		vty_out (vty, "  cs: %d%s",
-				(GET_CS(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
+				(GET_CS(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
 	}
 	else
 	{
 
 		zlog_debug ("    cs: %d",
-				GET_CS(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier)));
+				GET_CS(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier)));
 	}
 	if (vty != NULL)
 		{
 			vty_out (vty, "  id: %d%s",
-					(GET_IDENTIFIER(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
+					(GET_IDENTIFIER(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier))), VTY_NEWLINE);
 		}
 		else
 		{
 
 			zlog_debug ("    id: %d",
-					GET_IDENTIFIER(ntohs(top->scsi_grid_fixe.av_lab.lab_set.base_lab.grid_cs_identifier)));
+					GET_IDENTIFIER(ntohs(top->scsi.av_lab.lab_set.base_lab.grid_cs_identifier)));
 		}
 
 	if (vty != NULL)
@@ -2344,13 +2394,27 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 
 
 		if (vty != NULL)
-			vty_out(vty, "%x.", top->scsi_grid_fixe.av_lab.lab_set.bitmap[j]);
+			vty_out(vty, "%x.", top->scsi.av_lab.lab_set.bitmap[j]);
 		else
 			zlog_debug ("%x",
-					top->scsi_grid_fixe.av_lab.lab_set.bitmap[j]);
+					top->scsi.av_lab.lab_set.bitmap[j]);
 	}
 	if (vty != NULL)
-		vty_out(vty, "%x%s", top->scsi_grid_fixe.av_lab.lab_set.padding_bitmap, VTY_NEWLINE);
+		vty_out(vty, "%x%s", top->scsi.av_lab.lab_set.padding_bitmap, VTY_NEWLINE);
+
+	if (vty != NULL)
+		{
+			vty_out (vty, "  Priority level: %hi%s",
+					(GET_PRI(ntohs(top->scsi.pri_reserved))), VTY_NEWLINE);
+		}
+		else
+		{
+
+			zlog_debug ("     Priority level: %hi",
+					(GET_PRI(ntohs(top->scsi.pri_reserved))));
+		}
+
+
 	return TLV_SIZE (tlvh);
 }
 /*mes modifs*/

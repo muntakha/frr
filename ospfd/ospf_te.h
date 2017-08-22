@@ -258,7 +258,7 @@ struct te_link_subtlv_llri
 struct base_label
 {
 	u_int16_t grid_cs_identifier;
-	int16_t n;
+	int n;
 };
 
 struct label_set
@@ -270,17 +270,23 @@ struct label_set
 	u_int8_t padding_bitmap;
 };
 
-//#define	BANDWITH_SUBTLV_AVLAB	1
 struct available_label
 {
 	u_int32_t  pri_reserved;
 	struct label_set lab_set;
 };
-#define TE_LINK_SUBTLV_ISCD_scsi_grid_fixe	1
+#define TE_LINK_SUBTLV_ISCD_SCSI	1
 struct Sc_specific_information
 {
 	struct te_tlv_header header;
+	/*for flexed_grid*/
 	struct available_label av_lab;
+	/* Only for flexi_grid*/
+	u_int32_t  pri_reserved;
+	u_int16_t Max_slot[MAX_CLASS_TYPE];
+	long int cs_starting_n_numb_bits;
+	u_int8_t bitmap_flexi[SIZE_BITMAP_TAB_FLEXI];
+	u_int8_t padding_bitmap_flexi;
 };
 
 #define TE_LINK_SUBTLV_ISCD		15
@@ -292,7 +298,7 @@ struct te_link_subtlv_iscd
 	u_int8_t encod_type;                  /*The Encoding field*/
 	u_int16_t padding;		            /*Reserved*/
 	float max_lsp_bw[MAX_CLASS_TYPE];    /*Maximum LSP Bandwidth is encoded as a list of eight 4 octet fields*/
-	struct Sc_specific_information scsi_grid_fixe; /*Switching Capability specific information*/
+	struct Sc_specific_information scsi; /*Switching Capability specific information*/
 };
 
 
@@ -438,7 +444,7 @@ struct te_link_subtlv
 		u_int8_t encod_type;
 		u_int16_t padding;
 		float max_lsp_bw[8];
-		struct Sc_specific_information scsi_grid_fixe;
+		struct Sc_specific_information scsi;
 	} value;
 };
 
@@ -517,6 +523,7 @@ struct mpls_te_link
 /* Prototypes. */
 int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe);
 int Label_Set_size(struct Sc_specific_information scsi_grid_fixe );
+int scsi_flexi_grid_size(struct Sc_specific_information scsi_flexi_grid );
 extern int ospf_mpls_te_init (void);
 extern void ospf_mpls_te_term (void);
 extern struct ospf_mpls_te *get_ospf_mpls_te (void);

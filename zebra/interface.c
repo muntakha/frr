@@ -2484,7 +2484,7 @@ DEFUN (link_params_iscd,
 	u_int8_t swcap;
 	u_int8_t encod_type;
 	u_int16_t padding=0;
-	int i;
+	int i,j;
 	float bw;
 
 	VTY_DECLVAR_CONTEXT (interface, ifp);
@@ -2502,6 +2502,19 @@ DEFUN (link_params_iscd,
 	for (i=0; i<8 ;i++)
 	{
 		link_param_cmd_set_float (ifp, &iflp->max_lsp_bw[i], LP_ISCD, bw);
+
+	}
+	if(swcap==150)
+	{
+		if (IS_PARAM_UNSET(iflp, LP_ISCD_SCSI))
+			{
+				iflp->pri_reserved=SET_PRI_RESERVED(0xFF,0);
+				iflp->cs_starting_n_numb_bits=SET_CS_N_Start_NUMB_OF_EFF_BITS(5,-224,705);
+				/*iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);*/
+				SET_PARAM(iflp,LP_ISCD_SCSI);
+			}
+		for(j=0; j<SIZE_BITMAP_TAB_FLEXI; j++)
+				link_param_cmd_set_uint8 (ifp, &iflp->bitmap_flexi[j], LP_ISCD_SCSI,0xFF);
 
 	}
 	if (if_is_operative (ifp))
@@ -2623,7 +2636,7 @@ DEFUN (link_params_iscd_scsi_fixed_grid,
 		iflp->action_numLabel=SET_NUM_LABEL_ACTION(action,numLabel);
 		/*iflp->grid_cs_identifier=SET_GRID_CS_ID(grid,cs,9);*/
 		iflp->grid=grid;
-		iflp->identifier=9;
+		iflp->identifier=9;//9 is a test value
 		SET_PARAM(iflp,LP_ISCD_SCSI);
 	}
 
