@@ -234,13 +234,13 @@ struct if_stats
 #define ISCD_SCSI_NUMB_OF_EFF_BITS_MASK 0x00000fff
 
 #define	GET_CS_FLEXI(cs) \
-	(((int)(cs) & ISCD_SCSI_CS_MASK) >> 28)
+	(((long int)(cs) & ISCD_SCSI_CS_MASK) >> 28)
 
 #define	GET_N_START(n_start) \
-		(((int)(n_start) & ISCD_SCSI_N_START_MASK)>>12)
+		((( long int)(n_start) & ISCD_SCSI_N_START_MASK)>>12)
 
 #define	GET_SCSI_NUMB_OF_EFF_BITS(nb_of_eff_bits) \
-	 ((u_int16_t)(nb_of_eff_bits) & ISCD_SCSI_NUMB_OF_EFF_BITS_MASK)
+	 ((long int)(nb_of_eff_bits) & ISCD_SCSI_NUMB_OF_EFF_BITS_MASK)
 
 #define	SET_CS_N_Start_NUMB_OF_EFF_BITS(cs, n_start, nb_of_eff_bits) \
 	( (((cs) << 28) & ISCD_SCSI_CS_FLEXI_MASK) \

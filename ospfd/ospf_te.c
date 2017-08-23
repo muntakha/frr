@@ -100,7 +100,7 @@ int scsi_grid_fixe_size(struct Sc_specific_information scsi_grid_fixe )
 /*size of scsi_flexi_grid calculation */
 int scsi_flexi_grid_size(struct Sc_specific_information scsi_flexi_grid )
 {
-	int bitmap_size= (8*sizeof(scsi_flexi_grid.padding_bitmap_flexi) + GET_SCSI_NUMB_OF_EFF_BITS(ntohs(scsi_flexi_grid.cs_starting_n_numb_bits)));
+	int bitmap_size= (GET_SCSI_NUMB_OF_EFF_BITS(ntohl(scsi_flexi_grid.cs_starting_n_numb_bits)));
 	return (12 + bitmap_size);
 
 }
@@ -2306,15 +2306,19 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 				(top->Swcap), VTY_NEWLINE);
 		vty_out (vty, "  Encoding Type: %u%s",
 				(top->encod_type), VTY_NEWLINE);
-		vty_out (vty, "  CS for Flexi grid: %d%s",
-						(GET_CS_FLEXI(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
-		vty_out (vty, "  Starting n value: %d%s",
-								(GET_N_START(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
-		vty_out (vty, "  Number of effective bits: %d%s",
-								(GET_SCSI_NUMB_OF_EFF_BITS(ntohs(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+		vty_out (vty, "  CS for Flexi grid: %ld%s",
+						(GET_CS_FLEXI(ntohl(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+		vty_out (vty, "  Starting n value: %ld%s",
+								(GET_N_START(ntohl(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
+		vty_out (vty, "  Number of effective bits: %ld%s",
+								(GET_SCSI_NUMB_OF_EFF_BITS(ntohl(top->scsi.cs_starting_n_numb_bits))), VTY_NEWLINE);
 
 		for(int k=0;k<SIZE_BITMAP_TAB_FLEXI;k++)
 		{
+			if(k==SIZE_BITMAP_TAB_FLEXI-1)
+				vty_out (vty, "%x%s",
+													top->scsi.bitmap_flexi[k], VTY_NEWLINE);
+			else
 			vty_out (vty, "%x.",
 									top->scsi.bitmap_flexi[k]);
 		}
