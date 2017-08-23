@@ -805,7 +805,7 @@ set_linkparams_iscd_scsi_flexi_grid (struct mpls_te_link *lp, u_int8_t bitmap, i
 	u_int16_t tmp_action_numb_of_eff_bits;
 	long int cs=5;
 	long int n_start=-224;
-	long int nb_of_eff=705;
+	long int nb_of_eff=704;
 	int size_scsi=scsi_flexi_grid_size(lp->iscd.scsi);
 
 	lp->iscd.scsi.header.type   = htons (TE_LINK_SUBTLV_ISCD_SCSI);
@@ -815,7 +815,7 @@ set_linkparams_iscd_scsi_flexi_grid (struct mpls_te_link *lp, u_int8_t bitmap, i
 	tmp_priority=SET_PRI_RESERVED(0xFF,0);
 	lp->iscd.scsi.pri_reserved=htonl(tmp_priority);
 	tmp_action_numb_of_eff_bits=SET_CS_N_Start_NUMB_OF_EFF_BITS(cs,n_start,nb_of_eff); /*starting n=-14*16 and numb of eff bits =16*30-(-14*16)*/
-	lp->iscd.scsi.cs_starting_n_numb_bits=htons(tmp_action_numb_of_eff_bits);
+	lp->iscd.scsi.cs_starting_n_numb_bits=htonl(tmp_action_numb_of_eff_bits);
 	lp->iscd.scsi.bitmap_flexi[i]=bitmap;
 	lp->iscd.scsi.padding_bitmap_flexi=0x00;
 
@@ -921,7 +921,7 @@ update_linkparams(struct mpls_te_link *lp)
 		}
 		for (j = 0; j < MAX_CLASS_TYPE; j++)
 			set_linkparams_iscd(lp, ifp->link_params->Swcap, ifp->link_params->encod_type, ifp->link_params->max_lsp_bw[j], j);
-		if(ifp->link_params->Swcap==150)
+		if(ifp->link_params->Swcap==152)
 		{
 			for (j = 0; j < SIZE_BITMAP_TAB_FLEXI; j++)
 				set_linkparams_iscd_scsi_flexi_grid(lp,ifp->link_params->bitmap_flexi[j], j);
@@ -2318,7 +2318,6 @@ show_vty_link_subtlv_iscd (struct vty *vty, struct te_tlv_header *tlvh)
 			vty_out (vty, "%x.",
 									top->scsi.bitmap_flexi[k]);
 		}
-		vty_out(vty, "%x%s", top->scsi.padding_bitmap_flexi, VTY_NEWLINE);
 	}
 
 	else
